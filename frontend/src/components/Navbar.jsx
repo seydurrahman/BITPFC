@@ -25,13 +25,15 @@ import {
   Activity,
 } from "lucide-react";
 
-const Navbar = () => {
+const Navbar = ({ topOffset = 0 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm">
-      {/* Add padding-top to account for Topbar height */}
-      <div className="pt-8">
+    <header
+      className="fixed left-0 right-0 z-40 bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 shadow-sm"
+      style={{ top: `${topOffset}px` }}
+    >
+      <div>
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-900">
           <div className="flex items-center gap-3">
             <img src={Logo} className="h-14" alt="logo" />
@@ -365,7 +367,10 @@ const Navbar = () => {
 
       {/* Mobile Menu - Fixed position */}
       {mobileOpen && (
-        <div className="md:hidden fixed left-0 right-0 top-20 bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 shadow-md z-40">
+        <div
+          className="md:hidden fixed left-0 right-0 bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 shadow-md z-40"
+          style={{ top: `${topOffset + 56}px` }}
+        >
           <nav className="px-4 py-3">
             <ul className="flex flex-col gap-1">
               <li>

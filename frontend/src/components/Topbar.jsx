@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const Topbar = () => {
   const [visible, setVisible] = useState(true);
@@ -44,12 +45,12 @@ const Topbar = () => {
         </div>
 
         <div className="flex-shrink-0">
-          <a href="/login" className="mr-4 hover:text-brand-600 text-white font-bold text-lg">
+          <Link to="/login" className="mr-4 hover:text-brand-600 text-white font-bold text-lg">
             Login
-          </a>
-          <a href="/register" className="hover:text-brand-600 text-white font-bold text-lg">
+          </Link>
+          <Link to="/register" className="hover:text-brand-600 text-white font-bold text-lg">
             Register
-          </a>
+          </Link>
         </div>
       </div>
     </div>
