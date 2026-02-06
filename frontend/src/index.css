@@ -5,3 +5,13 @@
 .clip-path-triangle {
   clip-path: polygon(30% 0%, 100% 0%, 100% 100%, 30% 100%, 0% 50%);
 }
+
+/* hide native scrollbars while preserving scroll behavior */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+

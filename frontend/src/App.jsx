@@ -4,6 +4,9 @@ import Members from "./pages/home/Members";
 import MissionVision from "./pages/home/Mission_Vision";
 import BenifitsOfMember from "./pages/home/BenifitsOfMember";
 import UpcomingEvent from "./pages/home/UpcomingEvent";
+import ExecutiveCommittee from "./pages/home/ExecutiveCommmittee";
+import NewsRoom from "./pages/home/NewsRoom";
+import OurPartner from "./pages/home/OurPartner";
 
 function App() {
   return (
@@ -13,6 +16,9 @@ function App() {
       <MissionVision />
       <BenifitsOfMember />
       <UpcomingEvent />
+      <ExecutiveCommittee />
+      <NewsRoom />
+      <OurPartner />
     </Layout>
   );
 }

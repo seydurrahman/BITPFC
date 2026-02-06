@@ -49,12 +49,12 @@ export default function Benefits() {
         {/* RIGHT — Angled CTA */}
         <div className="relative flex items-center justify-center lg:justify-end min-h-[220px]">
           {/* angled background (taller, centered) */}
-          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-72 h-56 bg-indigo-600 clip-path-triangle rounded-l-[80px]"></div>
+          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-72 h-56 bg-blue-900 clip-path-triangle rounded-l-[80px]"></div>
 
           {/* button (vertically centered by parent) */}
           <a
             href="/register"
-            className="relative z-10 bg-white text-indigo-600 font-semibold px-8 py-3 rounded-full shadow-lg hover:scale-105 hover:bg-indigo-300 transition"
+            className="relative z-10 bg-white text-blue-900 font-semibold px-8 py-3 rounded-full shadow-lg hover:scale-105 hover:bg-indigo-300 transition"
           >
             Apply Now
           </a>
