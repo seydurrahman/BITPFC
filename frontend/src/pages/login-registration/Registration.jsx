@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 
@@ -10,14 +10,81 @@ const Registration = () => {
     confirm: "",
     phone: "",
     organization: "",
+    nid: "",
+    gender: "",
+    bloodGroup: "",
+    dateOfBirth: "",
+    photography: null,
+    occupation: "",
+    jobTitle: "",
+    companyName: "",
+    workStation: "",
+    jobCategory: "",
+    sector: "",
+    workExperience: "",
+    educationLevel: "",
+    institute: "",
+    passingYear: "",
+    linkedInUrl: "",
+    skills: [],
+    certifications: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const predefinedSkills = [
+    "Software Development",
+    "AI & Machine Learning",
+    "Cyber Security",
+    "Web Development",
+    "Mobile App Development",
+    "Software Testing",
+    "Project Management",
+    "Digital Marketing",
+    "Blockchain Technology",
+    "UX/UI",
+  ];
+
+  // The handleChange function remains unchanged
+  const handleChange = (e) => {
+    const { name, type, value, files, multiple, selectedOptions } = e.target;
+    if (type === "file") {
+      setForm({ ...form, [name]: files[0] });
+      return;
+    }
+
+    if (multiple) {
+      const values = Array.from(selectedOptions).map((o) => o.value);
+      setForm({ ...form, [name]: values });
+      return;
+    }
+
+    setForm({ ...form, [name]: value });
+  };
+
+  const toggleSkill = (val) => {
+    if (form.skills.includes(val)) {
+      setForm({ ...form, skills: form.skills.filter((s) => s !== val) });
+    } else {
+      setForm({ ...form, skills: [...form.skills, val] });
+    }
+  };
+
+  const [skillsOpen, setSkillsOpen] = useState(false);
+  const skillsRef = useRef(null);
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (skillsRef.current && !skillsRef.current.contains(e.target)) {
+        setSkillsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -31,17 +98,39 @@ const Registration = () => {
 
     setLoading(true);
     try {
-      const payload = {
-        username: form.username,
-        email: form.email,
-        password: form.password,
-        phone: form.phone,
-        organization: form.organization,
-      };
-      const res = await api.post("auth/register/", payload);
-      setSuccess(
-        res.data?.message || "Registration successful. Redirecting to login...",
-      );
+      // build multipart form data so file upload works
+      const fd = new FormData();
+      fd.append("username", form.username);
+      fd.append("email", form.email);
+      fd.append("password", form.password);
+      if (form.phone) fd.append("phone", form.phone);
+      if (form.organization) fd.append("organization", form.organization);
+      if (form.nid) fd.append("nid", form.nid);
+      if (form.gender) fd.append("gender", form.gender);
+      if (form.bloodGroup) fd.append("blood_group", form.bloodGroup);
+      if (form.dateOfBirth) fd.append("dateOfBirth", form.dateOfBirth);
+      if (form.occupation) fd.append("occupation", form.occupation);
+      if (form.jobTitle) fd.append("job_title", form.jobTitle);
+      if (form.companyName) fd.append("company_name", form.companyName);
+      if (form.workStation) fd.append("work_station", form.workStation);
+      if (form.jobCategory) fd.append("job_category", form.jobCategory);
+      if (form.sector) fd.append("sector", form.sector);
+      if (form.workExperience)
+        fd.append("work_experience", form.workExperience);
+      if (form.educationLevel)
+        fd.append("education_level", form.educationLevel);
+      if (form.institute) fd.append("institute", form.institute);
+      if (form.passingYear) fd.append("passing_year", form.passingYear);
+      if (form.linkedInUrl) fd.append("linked_in_url", form.linkedInUrl);
+      if (form.certifications) fd.append("certifications", form.certifications);
+      if (form.skills && form.skills.length)
+        fd.append("skills", JSON.stringify(form.skills));
+      if (form.photography) fd.append("photography", form.photography);
+
+      const res = await api.post("auth/register/", fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setSuccess(res.data?.message || "Registration successful.");
       setForm({
         username: "",
         email: "",
@@ -50,7 +139,7 @@ const Registration = () => {
         phone: "",
         organization: "",
       });
-      setTimeout(() => navigate("/login"), 1000);
+      navigate("/login");
     } catch (err) {
       setError(
         err.response?.data?.detail ||
@@ -65,8 +154,8 @@ const Registration = () => {
 
   return (
     <section className="min-h-[72vh] flex items-center justify-center py-12 px-4">
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="hidden md:flex flex-col justify-center rounded-lg p-8 bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-lg">
+      <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="hidden md:flex md:col-span-1 flex-col rounded-lg p-8 bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-lg">
           <h3 className="text-3xl font-bold mb-3">Welcome to BITPFC</h3>
           <p className="opacity-90 mb-6">
             Connect, learn and grow with IT professionals. Register to access
@@ -88,7 +177,7 @@ const Registration = () => {
           </ul>
         </div>
 
-        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow p-6 md:col-span-2">
           <h2 className="text-2xl font-semibold mb-1 text-slate-800 dark:text-slate-100">
             Create your account
           </h2>
@@ -102,36 +191,51 @@ const Registration = () => {
           )}
 
           <form onSubmit={submit} className="grid grid-cols-1 gap-3">
-            <div>
-              <label className="block text-sm text-slate-700 dark:text-slate-300">
-                Full name
-              </label>
-              <input
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                required
-                placeholder="Your full name"
-                className="mt-1 block w-full rounded-md border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Full name
+                </label>
+                <input
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  required
+                  placeholder="Your full name"
+                  className="mt-1 block w-full rounded-md border border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Email
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  placeholder="you@example.com"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Phone
+                </label>
+                <input
+                  name="phone"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="Optional"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm text-slate-700 dark:text-slate-300">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                placeholder="you@example.com"
-                className="mt-1 block w-full rounded-md border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
                   Password
@@ -143,9 +247,10 @@ const Registration = () => {
                   onChange={handleChange}
                   required
                   placeholder="Strong password"
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
               </div>
+
               <div>
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
                   Confirm
@@ -157,24 +262,10 @@ const Registration = () => {
                   onChange={handleChange}
                   required
                   placeholder="Repeat password"
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm text-slate-700 dark:text-slate-300">
-                  Phone
-                </label>
-                <input
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  placeholder="Optional"
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
-                />
-              </div>
               <div>
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
                   Organization
@@ -184,7 +275,294 @@ const Registration = () => {
                   value={form.organization}
                   onChange={handleChange}
                   placeholder="Company or institute"
-                  className="mt-1 block w-full rounded-md border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  NID Number
+                </label>
+                <input
+                  name="nid"
+                  value={form.nid}
+                  onChange={handleChange}
+                  placeholder="NID Number"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Gender
+                </label>
+                <select
+                  name="gender"
+                  value={form.gender}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                >
+                  <option value="">Select gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Blood Group
+                </label>
+                <select
+                  name="bloodGroup"
+                  value={form.bloodGroup}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                >
+                  <option value="">Select blood group</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Date of Birth
+                </label>
+                <input
+                  name="dateOfBirth"
+                  type="date"
+                  value={form.dateOfBirth}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Photography
+                </label>
+                <input
+                  name="photography"
+                  type="file"
+                  accept=".png,.pdf,image/png,application/pdf"
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Occupation
+                </label>
+                <input
+                  name="occupation"
+                  value={form.occupation}
+                  onChange={handleChange}
+                  placeholder="Occupation"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+            </div>
+
+            {/* Professional Info */}
+            <p className="text-xl underline">Professional Info</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Job Title
+                </label>
+                <input
+                  name="jobTitle"
+                  value={form.jobTitle}
+                  onChange={handleChange}
+                  placeholder="Job Title"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Company Name
+                </label>
+                <input
+                  name="companyName"
+                  value={form.companyName}
+                  onChange={handleChange}
+                  placeholder="Company Name"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Work Station
+                </label>
+                <input
+                  name="workStation"
+                  value={form.workStation}
+                  onChange={handleChange}
+                  placeholder="Work Station"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Job Category
+                </label>
+                <select
+                  name="jobCategory"
+                  value={form.jobCategory}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                >
+                  <option value="">Select job category</option>
+                  <option value="Full Time">Full Time</option>
+                  <option value="Part Time">Part Time</option>
+                  <option value="Contractual">Contractual</option>
+                  <option value="Internship">Internship</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Sector
+                </label>
+                <select
+                  name="sector"
+                  value={form.sector}
+                  onChange={handleChange}
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                >
+                  <option value="">Select sector</option>
+                  <option value="Information Technology">
+                    Information Technology
+                  </option>
+                  <option value="Manufacturing">Manufacturing</option>
+                  <option value="Banking & Finance">Banking & Finance</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Education">Education</option>
+                  <option value="Government">Government</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Work Expericence
+                </label>
+                <input
+                  name="workExperience"
+                  value={form.workExperience}
+                  onChange={handleChange}
+                  placeholder="Work Experience"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Education Level
+                </label>
+                <input
+                  name="educationLevel"
+                  value={form.educationLevel}
+                  onChange={handleChange}
+                  placeholder="Education Level"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Institute
+                </label>
+                <input
+                  name="institute"
+                  value={form.institute}
+                  onChange={handleChange}
+                  placeholder="Institute"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Passing Year
+                </label>
+                <input
+                  name="passingYear"
+                  value={form.passingYear}
+                  onChange={handleChange}
+                  placeholder="Passing Year"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  LinkedIn URL
+                </label>
+                <input
+                  name="linkedInUrl"
+                  value={form.linkedInUrl}
+                  onChange={handleChange}
+                  placeholder="LinkedIn URL"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div ref={skillsRef} className="relative">
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Skills
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setSkillsOpen((s) => !s)}
+                  className="mt-1 w-full text-left rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                >
+                  {form.skills.length > 0
+                    ? form.skills.join(", ")
+                    : "Select skills"}
+                </button>
+
+                {skillsOpen && (
+                  <div className="absolute z-20 mt-2 w-full max-h-60 overflow-auto rounded-md border border-gray-200 bg-white dark:bg-slate-900 p-3 shadow-lg">
+                    <div className="grid grid-cols-1 gap-2">
+                      {predefinedSkills.map((opt) => (
+                        <label
+                          key={opt}
+                          className="inline-flex items-center gap-2"
+                        >
+                          <input
+                            type="checkbox"
+                            name="skills"
+                            value={opt}
+                            checked={form.skills.includes(opt)}
+                            onChange={() => toggleSkill(opt)}
+                            className="rounded border-gray-300 text-sky-600 focus:ring-sky-500"
+                          />
+                          <span className="text-sm text-slate-700 dark:text-slate-300">
+                            {opt}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Certifications
+                </label>
+                <input
+                  name="certifications"
+                  value={form.certifications}
+                  onChange={handleChange}
+                  placeholder="Certifications"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
               </div>
             </div>
