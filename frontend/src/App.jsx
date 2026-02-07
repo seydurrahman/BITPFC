@@ -3,6 +3,12 @@ import Layout from "./components/Layout";
 import Banner from "./pages/home/Banner";
 import Members from "./pages/home/Members";
 import MissionVision from "./pages/home/Mission_Vision";
+import Mission from "./pages/navbar-content/about-us/aboutBITPFC/Mission";
+import Vision from "./pages/navbar-content/about-us/aboutBITPFC/Vision";
+import Goal from "./pages/navbar-content/about-us/aboutBITPFC/Goal";
+import FounderMessage from "./pages/navbar-content/about-us/FounderMessage";
+import AdvisorTeam from "./pages/navbar-content/about-us/AdvisorTeam";
+import ExecutivesCommittee from "./pages/navbar-content/about-us/Executives_Committee";
 import BenifitsOfMember from "./pages/home/BenifitsOfMember";
 import UpcomingEvent from "./pages/home/UpcomingEvent";
 import ExecutiveCommittee from "./pages/home/ExecutiveCommmittee";
@@ -35,6 +41,62 @@ function App() {
           element={
             <Layout>
               <Registration />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <Layout>
+              <MissionVision />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/mission"
+          element={
+            <Layout>
+              <Mission />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/founder-message"
+          element={
+            <Layout>
+              <FounderMessage />
+            </Layout>
+          }
+        />
+         <Route
+          path="/about/advisor-team"
+          element={
+            <Layout>
+              <AdvisorTeam />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/executives-committee"
+          element={
+            <Layout>
+              <ExecutivesCommittee />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/vision"
+          element={
+            <Layout>
+              <Vision />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about/goal"
+          element={
+            <Layout>
+              <Goal />
             </Layout>
           }
         />

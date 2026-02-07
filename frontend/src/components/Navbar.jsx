@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Logo from "../assets/logo.png";
 import {
   Facebook,
@@ -23,6 +24,8 @@ import {
   Monitor,
   Calendar,
   Activity,
+  Goal,
+  GoalIcon,
 } from "lucide-react";
 
 const Navbar = ({ topOffset = 0 }) => {
@@ -70,53 +73,62 @@ const Navbar = ({ topOffset = 0 }) => {
                     <div className="absolute top-0 left-full ml-1 w-44 rounded-md bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-lg opacity-0 invisible translate-x-2 group-hover/item:visible group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all duration-200 z-50">
                       <ul className="py-1">
                         <li>
-                          <a
-                            href="/about/mission"
+                          <Link
+                            to="/about/mission"
                             className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
                           >
                             <Target size={16} />
                             Mission
-                          </a>
+                          </Link>
                         </li>
                         <li>
-                          <a
-                            href="/about/vision"
+                          <Link
+                            to="/about/vision"
                             className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
                           >
                             <Eye size={16} />
                             Vision
-                          </a>
+                          </Link>
+                        </li>
+                        <li>
+                          <Link
+                            to="/about/goal"
+                            className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
+                          >
+                            <GoalIcon size={16} />
+                            Goal
+                          </Link>
                         </li>
                       </ul>
                     </div>
                   </li>
 
                   <li>
-                    <a
-                      href="/founder"
+                    <Link
+                      to="/about/founder-message"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <MessageSquare size={16} />
                       Founder Message
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="/advisor-team"
+                    <Link
+                      to="/about/advisor-team"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <Users size={16} />
                       Advisor Team
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="/executive-committee"
+                    <Link
+                      to="/about/executives-committee"
                       className="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <Briefcase size={16} />
                       Executive Committee
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
