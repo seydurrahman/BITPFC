@@ -8,6 +8,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
+  const [membersOpen, setMembersOpen] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -39,11 +40,7 @@ function AdminDashboard() {
     <div className="min-h-screen flex flex-col bg-slate-50">
       <header className="flex items-center justify-between px-6 py-3 bg-white border-b">
         <div className="flex items-center gap-3">
-          <img
-            src={Logo}
-            alt="Logo"
-            className="h-14 rounded object-cover"
-          />
+          <img src={Logo} alt="Logo" className="h-14 rounded object-cover" />
         </div>
 
         <div className="relative">
@@ -81,13 +78,49 @@ function AdminDashboard() {
             <Link to="/admin" className="px-3 py-2 rounded hover:bg-slate-100">
               Admin Dashboard
             </Link>
-            
-            <Link
-              to="/admin/members"
-              className="px-3 py-2 rounded hover:bg-slate-100"
-            >
-              Members
-            </Link>
+
+            <div>
+              <button
+                onClick={() => setMembersOpen((s) => !s)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded hover:bg-slate-100"
+                aria-expanded={membersOpen}
+                aria-controls="members-submenu"
+              >
+                <span>Members</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transform transition-transform ${membersOpen ? "rotate-90" : "rotate-0"}`}
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6 6a1 1 0 011.707-.707L13.414 11l-5.707 5.707A1 1 0 016 16V6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              {membersOpen && (
+                <div
+                  id="members-submenu"
+                  className="ml-3 mt-1 flex flex-col gap-1"
+                >
+                  <Link
+                    to="/admin/members/category"
+                    className="px-3 py-1 rounded hover:bg-slate-100 text-sm"
+                  >
+                    Member Category
+                  </Link>
+                  <Link
+                    to="/admin/members/registered"
+                    className="px-3 py-1 rounded hover:bg-slate-100 text-sm"
+                  >
+                    Registered Members
+                  </Link>
+                </div>
+              )}
+            </div>
             <Link
               to="/admin/settings"
               className="px-3 py-2 rounded hover:bg-slate-100 bg-blue-600 text-white"

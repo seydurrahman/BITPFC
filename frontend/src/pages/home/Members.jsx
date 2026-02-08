@@ -10,7 +10,7 @@ const stats = [
 
 export default function Members() {
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 py-4">
+    <section className="relative w-full overflow-hidden bg-gradient-to-r from-blue-900 via-blue-800 to-blue-900 py-4 mt-8">
       {/* Decorative big background icon (smaller + hidden on xs) */}
       <Users
         size={220}

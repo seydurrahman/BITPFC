@@ -186,7 +186,7 @@ function BannerUploadList() {
                     className=" h-40 object-cover rounded"
                   />
                   <div className="flex-1">
-                    <div className="font-semibold">{b.title}</div>
+                    <div className="font-bold">{b.title}</div>
                     <div className="text-sm text-gray-600">{b.description}</div>
                   </div>
                   <div className="flex flex-col gap-2">

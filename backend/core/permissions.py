@@ -1,10 +1,18 @@
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
-class IsAdminOrRoleAdmin(BasePermission):
-    """Allow access only to staff/superuser or users with role 'admin'."""
+class IsAdminOrReadOnly(BasePermission):
+    """Allow read-only access for any request, but write access only to admins.
+
+    Read (SAFE) methods: GET, HEAD, OPTIONS are allowed for unauthenticated users.
+    Unsafe methods require the user to be staff/superuser or have role 'admin'.
+    """
 
     def has_permission(self, request, view):
+        # allow safe methods for everyone
+        if request.method in SAFE_METHODS:
+            return True
+
         user = getattr(request, "user", None)
         if not user or not user.is_authenticated:
             return False

@@ -18,6 +18,9 @@ import Registration from "./pages/login-registration/Registration";
 import Login from "./pages/login-registration/Login";
 import AdminDashboard from "./admin-panel/dashboard/AdminDashboard";
 import BannerUpload from "./admin-panel/settings/BannerUpload";
+import MembersAdmin from "./admin-panel/main/Members/MembersAdmin";
+import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
+import RegisteredMembers from "./admin-panel/main/Members/RegisteredMembers";
 
 function App() {
   return (
@@ -113,6 +116,12 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />}>
           <Route index element={<div>Welcome to admin dashboard</div>} />
           <Route path="settings/banner" element={<BannerUpload />} />
+
+          <Route path="members" element={<MembersAdmin />}>
+            <Route index element={<MembershipCategory />} />
+            <Route path="category" element={<MembershipCategory />} />
+            <Route path="registered" element={<RegisteredMembers />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>

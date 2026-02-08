@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Banner
+from .models import Banner, MembershipCategory
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -63,3 +63,21 @@ class BannerSerializer(serializers.ModelSerializer):
                 )
 
         return data
+class MembershipCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MembershipCategory
+        fields = (
+            "id",
+            "name",
+            "experiences",
+            "price",
+            "year_type",
+            "vote",
+            "is_active",
+        )
+        read_only_fields = ("id",)
+    def validate_name(self, value):
+        if not value or len(value.strip()) < 3:
+            raise serializers.ValidationError("Name must be at least 3 characters.")
+        return value
+        

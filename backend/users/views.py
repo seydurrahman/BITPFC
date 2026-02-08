@@ -8,6 +8,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
+from core.models import MembershipCategory
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
@@ -104,6 +107,23 @@ def register(request):
         if photo:
             user.photography = photo
 
+        # membership_category: accept id or name
+        cat_val = data.get("membership_category") or data.get("category")
+        if cat_val:
+            try:
+                # try numeric id first
+                mc = None
+                try:
+                    mc = MembershipCategory.objects.get(pk=int(cat_val))
+                except Exception:
+                    mc = MembershipCategory.objects.filter(name__iexact=cat_val).first()
+
+                if mc:
+                    user.membership_category = mc
+            except Exception:
+                # ignore invalid category
+                pass
+
         user.save()
     except Exception:
         # If saving extra fields fails, still return success for core user creation,
@@ -111,6 +131,56 @@ def register(request):
         return JsonResponse({"detail": "Failed saving profile fields"}, status=500)
 
     return JsonResponse({"message": "Registration successful"}, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def users_list(request):
+    # only staff/admins can list users
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
+
+    User = get_user_model()
+    qs = User.objects.all().order_by("-id")
+    results = []
+    for u in qs:
+        mc = None
+        try:
+            if getattr(u, "membership_category", None):
+                mc = {
+                    "id": u.membership_category.id,
+                    "name": u.membership_category.name,
+                }
+        except Exception:
+            mc = None
+
+        results.append(
+            {
+                "id": u.id,
+                "username": u.username,
+                "first_name": u.first_name,
+                "last_name": u.last_name,
+                "phone": u.phone,
+                "date_joined": u.date_joined,
+                "is_active": u.is_active,
+                "membership_category": mc,
+            }
+        )
+
+    return Response(results, status=status.HTTP_200_OK)
+
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def user_detail(request, pk):
+    # only staff/admins can delete users
+    if not (request.user.is_staff or request.user.is_superuser):
+        return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
+
+    User = get_user_model()
+    user = get_object_or_404(User, pk=pk)
+    user.delete()
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(["GET"])

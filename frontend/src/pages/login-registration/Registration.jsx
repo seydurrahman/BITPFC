@@ -500,7 +500,6 @@ const Registration = () => {
                 />
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
@@ -567,6 +566,10 @@ const Registration = () => {
               </div>
             </div>
 
+            {/* Membership & Payment */}
+            <p className="text-xl underline">Membership & Payment</p>
+
+            
             <button
               type="submit"
               disabled={loading}

@@ -31,3 +31,9 @@ class User(AbstractUser):
     linked_in_url = models.CharField(max_length=512, blank=True, null=True)
     skills = models.JSONField(blank=True, null=True, default=list)
     certifications = models.TextField(blank=True, null=True)
+    membership_category = models.ForeignKey(
+        "core.MembershipCategory",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
