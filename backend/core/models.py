@@ -39,6 +39,7 @@ class Banner(models.Model):
                 # If thumbnail generation fails, ignore silently
                 pass
 
+
 class MembershipCategory(models.Model):
     name = models.CharField(max_length=100)
     experiences = models.TextField(blank=True, null=True)

@@ -170,15 +170,177 @@ def users_list(request):
     return Response(results, status=status.HTTP_200_OK)
 
 
-@api_view(["DELETE"])
+@api_view(["GET", "PATCH", "DELETE"])
 @permission_classes([IsAuthenticated])
 def user_detail(request, pk):
-    # only staff/admins can delete users
+    # only staff/admins can access/modify/delete users
     if not (request.user.is_staff or request.user.is_superuser):
         return Response({"detail": "Not authorized"}, status=status.HTTP_403_FORBIDDEN)
 
     User = get_user_model()
     user = get_object_or_404(User, pk=pk)
+
+    if request.method == "GET":
+        # return full user profile
+        data = {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+            "phone": user.phone,
+            "organization": user.organization,
+            "nid": user.nid,
+            "gender": user.gender,
+            "blood_group": user.blood_group,
+            "date_of_birth": user.date_of_birth,
+            "occupation": user.occupation,
+            "job_title": user.job_title,
+            "company_name": user.company_name,
+            "work_station": user.work_station,
+            "job_category": user.job_category,
+            "sector": user.sector,
+            "work_experience": user.work_experience,
+            "education_level": user.education_level,
+            "institute": user.institute,
+            "passing_year": user.passing_year,
+            "linked_in_url": user.linked_in_url,
+            "skills": user.skills,
+            "certifications": user.certifications,
+            "is_active": user.is_active,
+            "date_joined": user.date_joined,
+        }
+
+        # include photography URL if present
+        try:
+            if user.photography:
+                data["photography"] = request.build_absolute_uri(user.photography.url)
+        except Exception:
+            pass
+
+        # include membership category minimal info
+        try:
+            if getattr(user, "membership_category", None):
+                data["membership_category"] = {
+                    "id": user.membership_category.id,
+                    "name": user.membership_category.name,
+                }
+        except Exception:
+            data["membership_category"] = None
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    if request.method == "PATCH":
+        # Support multipart/form-data or JSON for updates
+        data = {}
+        files = {}
+        if request.content_type and request.content_type.startswith("multipart"):
+            data = request.POST.dict()
+            files = request.FILES
+        else:
+            try:
+                import json
+
+                data = json.loads(request.body.decode("utf-8"))
+            except Exception:
+                return Response(
+                    {"detail": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST
+                )
+
+        try:
+
+            def set_if_present(field_name, transform=lambda x: x):
+                v = data.get(field_name)
+                if v is not None and v != "":
+                    setattr(user, field_name, transform(v))
+
+            # allow password change if provided
+            pwd = data.get("password")
+            if pwd:
+                user.set_password(pwd)
+
+            set_if_present("phone")
+            set_if_present("organization")
+            set_if_present("nid")
+            set_if_present("gender")
+            set_if_present("blood_group")
+            dob = data.get("dateOfBirth") or data.get("date_of_birth")
+            if dob:
+                parsed = None
+                try:
+                    from django.utils.dateparse import parse_date
+
+                    parsed = parse_date(dob)
+                except Exception:
+                    parsed = None
+                if parsed:
+                    user.date_of_birth = parsed
+
+            set_if_present("occupation")
+            set_if_present("job_title")
+            set_if_present("company_name")
+            set_if_present("work_station")
+            set_if_present("job_category")
+            set_if_present("sector")
+            set_if_present("work_experience")
+            set_if_present("education_level")
+            set_if_present("institute")
+            set_if_present("passing_year")
+            set_if_present("linked_in_url")
+            set_if_present("certifications")
+
+            # skills: accept JSON string or list
+            skills_val = data.get("skills")
+            if skills_val:
+                if isinstance(skills_val, str):
+                    import json as _json
+
+                    try:
+                        parsed = _json.loads(skills_val)
+                        if isinstance(parsed, list):
+                            user.skills = parsed
+                        else:
+                            user.skills = [
+                                s.strip() for s in skills_val.split(",") if s.strip()
+                            ]
+                    except Exception:
+                        user.skills = [
+                            s.strip() for s in skills_val.split(",") if s.strip()
+                        ]
+                elif isinstance(skills_val, list):
+                    user.skills = skills_val
+
+            # handle file upload
+            photo = files.get("photography")
+            if photo:
+                user.photography = photo
+
+            # membership_category: accept id or name
+            cat_val = data.get("membership_category") or data.get("category")
+            if cat_val:
+                try:
+                    mc = None
+                    try:
+                        mc = MembershipCategory.objects.get(pk=int(cat_val))
+                    except Exception:
+                        mc = MembershipCategory.objects.filter(
+                            name__iexact=cat_val
+                        ).first()
+
+                    if mc:
+                        user.membership_category = mc
+                except Exception:
+                    pass
+
+            user.save()
+            return Response({"message": "Update successful"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(
+                {"detail": "Failed saving profile fields", "error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    # DELETE
     user.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 

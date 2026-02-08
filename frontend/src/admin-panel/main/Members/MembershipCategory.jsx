@@ -156,7 +156,6 @@ export default function MembershipCategory() {
             />
           </div>
           <div className="flex items-center gap-2">
-            
             <input
               id="vote"
               name="vote"
@@ -164,7 +163,7 @@ export default function MembershipCategory() {
               checked={!!form.vote}
               onChange={handleChange}
             />
-             <label htmlFor="vote" className="text-sm">
+            <label htmlFor="vote" className="text-sm">
               Voting
             </label>
           </div>

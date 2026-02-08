@@ -21,6 +21,7 @@ import BannerUpload from "./admin-panel/settings/BannerUpload";
 import MembersAdmin from "./admin-panel/main/Members/MembersAdmin";
 import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
 import RegisteredMembers from "./admin-panel/main/Members/RegisteredMembers";
+import AssignMember from "./admin-panel/main/Members/AssignMember";
 
 function App() {
   return (
@@ -121,6 +122,7 @@ function App() {
             <Route index element={<MembershipCategory />} />
             <Route path="category" element={<MembershipCategory />} />
             <Route path="registered" element={<RegisteredMembers />} />
+            <Route path="assign" element={<AssignMember />} />
           </Route>
         </Route>
       </Routes>

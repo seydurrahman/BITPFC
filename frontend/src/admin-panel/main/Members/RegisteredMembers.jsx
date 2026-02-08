@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "../../../api/axios";
 
 export default function RegisteredMembers() {
@@ -34,7 +35,7 @@ export default function RegisteredMembers() {
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Phone</th>
               <th className="px-4 py-2 text-left">Registration Date</th>
-              <th className="px-4 py-2 text-left">Category</th>
+              {/* Category column removed per request */}
               <th className="px-4 py-2 text-left">Status</th>
               <th className="px-4 py-2">Action</th>
             </tr>
@@ -42,13 +43,13 @@ export default function RegisteredMembers() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="p-4">
+                <td colSpan={5} className="p-4">
                   Loading...
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-4">
+                <td colSpan={5} className="p-4">
                   No users found.
                 </td>
               </tr>
@@ -67,20 +68,15 @@ export default function RegisteredMembers() {
                       : "-"}
                   </td>
                   <td className="px-4 py-2">
-                    {(u.membership_category && u.membership_category.name) ||
-                      u.category ||
-                      "-"}
-                  </td>
-                  <td className="px-4 py-2">
                     {u.is_active ? "Active" : "Inactive"}
                   </td>
                   <td className="px-4 py-2 text-center">
-                    <button
-                      onClick={() => alert("View user " + u.id)}
-                      className="text-sm text-blue-600 mr-2"
+                    <Link
+                      to={`/register?id=${u.id}`}
+                      className="text-sm text-green-600 mr-2"
                     >
-                      View
-                    </button>
+                      Edit
+                    </Link>
                     <button
                       onClick={async () => {
                         if (confirm("Delete this user?")) {

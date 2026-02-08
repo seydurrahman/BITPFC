@@ -63,6 +63,8 @@ class BannerSerializer(serializers.ModelSerializer):
                 )
 
         return data
+
+
 class MembershipCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = MembershipCategory
@@ -76,8 +78,8 @@ class MembershipCategorySerializer(serializers.ModelSerializer):
             "is_active",
         )
         read_only_fields = ("id",)
+
     def validate_name(self, value):
         if not value or len(value.strip()) < 3:
             raise serializers.ValidationError("Name must be at least 3 characters.")
         return value
-        

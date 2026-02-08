@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "../../api/axios";
 
 const Registration = () => {
@@ -34,6 +34,9 @@ const Registration = () => {
   const [success, setSuccess] = useState(null);
 
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get("id");
+  const [isEdit, setIsEdit] = useState(false);
 
   const predefinedSkills = [
     "Software Development",
@@ -86,6 +89,51 @@ const Registration = () => {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    const fetchUser = async (id) => {
+      try {
+        const res = await api.get(`users/${id}/`);
+        const u = res.data || {};
+        if (!mounted) return;
+        setIsEdit(true);
+        setForm((prev) => ({
+          ...prev,
+          username: u.username || prev.username,
+          email: u.email || prev.email,
+          phone: u.phone || prev.phone,
+          organization: u.organization || prev.organization,
+          nid: u.nid || prev.nid,
+          gender: u.gender || prev.gender,
+          bloodGroup: u.blood_group || prev.bloodGroup,
+          dateOfBirth: u.date_of_birth || u.dateOfBirth || prev.dateOfBirth,
+          occupation: u.occupation || prev.occupation,
+          jobTitle: u.job_title || prev.jobTitle,
+          companyName: u.company_name || prev.companyName,
+          workStation: u.work_station || prev.workStation,
+          jobCategory: u.job_category || prev.jobCategory,
+          sector: u.sector || prev.sector,
+          workExperience: u.work_experience || prev.workExperience,
+          educationLevel: u.education_level || prev.educationLevel,
+          institute: u.institute || prev.institute,
+          passingYear: u.passing_year || prev.passingYear,
+          linkedInUrl: u.linked_in_url || prev.linkedInUrl,
+          skills: Array.isArray(u.skills)
+            ? u.skills
+            : u.skills
+              ? JSON.parse(u.skills)
+              : prev.skills,
+          certifications: u.certifications || prev.certifications,
+        }));
+      } catch (err) {
+        console.error("Failed to fetch user for edit", err);
+      }
+    };
+
+    if (editId) fetchUser(editId);
+    return () => (mounted = false);
+  }, [editId]);
+
   const submit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -102,7 +150,8 @@ const Registration = () => {
       const fd = new FormData();
       fd.append("username", form.username);
       fd.append("email", form.email);
-      fd.append("password", form.password);
+      if (!isEdit && form.password) fd.append("password", form.password);
+      if (isEdit && form.password) fd.append("password", form.password);
       if (form.phone) fd.append("phone", form.phone);
       if (form.organization) fd.append("organization", form.organization);
       if (form.nid) fd.append("nid", form.nid);
@@ -127,19 +176,29 @@ const Registration = () => {
         fd.append("skills", JSON.stringify(form.skills));
       if (form.photography) fd.append("photography", form.photography);
 
-      const res = await api.post("auth/register/", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      setSuccess(res.data?.message || "Registration successful.");
-      setForm({
-        username: "",
-        email: "",
-        password: "",
-        confirm: "",
-        phone: "",
-        organization: "",
-      });
-      navigate("/login");
+      let res;
+      if (isEdit && editId) {
+        // update existing user
+        res = await api.patch(`users/${editId}/`, fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        setSuccess(res.data?.message || "Update successful.");
+        navigate("/admin/members/registered");
+      } else {
+        res = await api.post("auth/register/", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        setSuccess(res.data?.message || "Registration successful.");
+        setForm({
+          username: "",
+          email: "",
+          password: "",
+          confirm: "",
+          phone: "",
+          organization: "",
+        });
+        navigate("/login");
+      }
     } catch (err) {
       setError(
         err.response?.data?.detail ||
@@ -566,10 +625,7 @@ const Registration = () => {
               </div>
             </div>
 
-            {/* Membership & Payment */}
-            <p className="text-xl underline">Membership & Payment</p>
 
-            
             <button
               type="submit"
               disabled={loading}
