@@ -16,6 +16,8 @@ import NewsRoom from "./pages/home/NewsRoom";
 import OurPartner from "./pages/home/OurPartner";
 import Registration from "./pages/login-registration/Registration";
 import Login from "./pages/login-registration/Login";
+import AdminDashboard from "./admin-panel/dashboard/AdminDashboard";
+import BannerUpload from "./admin-panel/settings/BannerUpload";
 
 function App() {
   return (
@@ -68,7 +70,7 @@ function App() {
             </Layout>
           }
         />
-         <Route
+        <Route
           path="/about/advisor-team"
           element={
             <Layout>
@@ -108,6 +110,10 @@ function App() {
             </Layout>
           }
         />
+        <Route path="/admin" element={<AdminDashboard />}>
+          <Route index element={<div>Welcome to admin dashboard</div>} />
+          <Route path="settings/banner" element={<BannerUpload />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

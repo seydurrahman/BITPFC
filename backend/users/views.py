@@ -2,6 +2,15 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import get_user_model
 from django.utils.dateparse import parse_date
+from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.contrib.auth import get_user_model
 
 
 @csrf_exempt
@@ -102,3 +111,46 @@ def register(request):
         return JsonResponse({"detail": "Failed saving profile fields"}, status=500)
 
     return JsonResponse({"message": "Registration successful"}, status=201)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def current_user(request):
+    user = request.user
+    data = {
+        "is_authenticated": True,
+        "username": user.get_username(),
+        "email": user.email,
+        "is_staff": user.is_staff,
+        "is_superuser": user.is_superuser,
+        "role": getattr(user, "role", None),
+        "is_admin": getattr(user, "is_staff", False)
+        or getattr(user, "is_superuser", False)
+        or (getattr(user, "role", None) == "admin"),
+    }
+    return Response(data, status=status.HTTP_200_OK)
+
+
+class EmailTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """Allow obtaining token with either username or email."""
+
+    def validate(self, attrs):
+        # The base serializer expects 'username' and 'password'. Accept 'email' as 'username'.
+        username = attrs.get(self.username_field) or attrs.get("email")
+        password = attrs.get("password")
+
+        if username and "@" in username:
+            User = get_user_model()
+            try:
+                user = User.objects.get(email__iexact=username)
+                # set username field to the user's username so authenticate works
+                attrs[self.username_field] = user.get_username()
+            except User.DoesNotExist:
+                # leave attrs as-is; authentication will fail below with a clear message
+                pass
+
+        return super().validate(attrs)
+
+
+class EmailTokenObtainPairView(TokenObtainPairView):
+    serializer_class = EmailTokenObtainPairSerializer

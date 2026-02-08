@@ -18,8 +18,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from users import views as user_views
+from rest_framework_simplejwt.views import (
+    TokenRefreshView,
+)
+from users.views import EmailTokenObtainPairView
+from django.urls import include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/auth/register/", user_views.register),
+    path("api/user/", user_views.current_user),
+    path("api/token/", EmailTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/", include("core.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

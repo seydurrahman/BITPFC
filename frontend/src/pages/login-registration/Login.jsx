@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "../../api/axios";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -15,10 +16,36 @@ const Login = () => {
     setError(null);
     setLoading(true);
     try {
-      // TODO: wire to backend login endpoint
-      setTimeout(() => navigate("/"), 400);
+      const payload = { username: form.email, password: form.password };
+      const res = await axios.post("token/", payload);
+      const { access, refresh } = res.data || {};
+      if (access) {
+        localStorage.setItem("accessToken", access);
+      }
+      if (refresh) {
+        localStorage.setItem("refreshToken", refresh);
+      }
+
+      // Fetch current user and redirect based on admin status
+      try {
+        const me = await axios.get("user/");
+        const data = me.data || {};
+        if (
+          data.is_admin ||
+          data.is_staff ||
+          data.is_superuser ||
+          data.role === "admin"
+        ) {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      } catch (e) {
+        // If fetching profile fails, fallback to home
+        navigate("/");
+      }
     } catch (err) {
-      setError("Login failed");
+      setError(err.response?.data?.detail || "Login failed");
     } finally {
       setLoading(false);
     }
