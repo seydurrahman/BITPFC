@@ -43,13 +43,13 @@ function AdminDashboard() {
           <img src={Logo} alt="Logo" className="h-14 rounded object-cover" />
         </div>
 
-        <div className="relative">
+        <div className="relative border-2 border-blue-600 rounded-md">
           <button
             onClick={() => setOpen((s) => !s)}
             className="flex items-center gap-3 px-3 py-1 bg-white rounded-md border"
           >
             <div className="w-8 h-8 bg-slate-200 rounded-full" />
-            <div className="text-sm text-slate-700">
+            <div className="text-sm text-slate-700 ">
               {user?.username || user?.email || "Admin"}
             </div>
           </button>
@@ -59,10 +59,10 @@ function AdminDashboard() {
               <div className="px-2 py-1 text-sm text-slate-700">
                 {user?.username || user?.email}
               </div>
-              <div className="border-t mt-2 pt-2">
+              <div className="border-t border-blue-600 mt-2 pt-2">
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-slate-50 rounded"
+                  className="w-full text-left px-2 py-1 text-sm text-red-600 hover:bg-orange-300 rounded"
                 >
                   Logout
                 </button>

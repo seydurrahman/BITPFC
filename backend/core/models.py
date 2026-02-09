@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from io import BytesIO
 from django.core.files.base import ContentFile
@@ -50,3 +51,17 @@ class MembershipCategory(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class AssignMembership(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    membership_category = models.ForeignKey(
+        MembershipCategory, on_delete=models.CASCADE
+    )
+    member_id = models.CharField(max_length=100, unique=True)
+    committee_type = models.CharField(max_length=100, null=True, blank=True)
+    designation = models.CharField(max_length=100, null=True, blank=True)
+    assigned_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.membership_category.name}"

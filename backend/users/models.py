@@ -29,6 +29,8 @@ class User(AbstractUser):
     institute = models.CharField(max_length=255, blank=True, null=True)
     passing_year = models.CharField(max_length=16, blank=True, null=True)
     linked_in_url = models.CharField(max_length=512, blank=True, null=True)
+    facebook_url = models.CharField(max_length=512, blank=True, null=True)
+    twitter_url = models.CharField(max_length=512, blank=True, null=True)
     skills = models.JSONField(blank=True, null=True, default=list)
     certifications = models.TextField(blank=True, null=True)
     membership_category = models.ForeignKey(

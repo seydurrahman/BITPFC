@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Banner, MembershipCategory
+from .models import AssignMembership, Banner, MembershipCategory
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -83,3 +83,17 @@ class MembershipCategorySerializer(serializers.ModelSerializer):
         if not value or len(value.strip()) < 3:
             raise serializers.ValidationError("Name must be at least 3 characters.")
         return value
+
+class AssignMembershipSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssignMembership
+        fields = (
+            "id",
+            "user",
+            "membership_category",
+            "member_id",
+            "committee_type",
+            "designation",
+            "assigned_at",
+        )
+        read_only_fields = ("id", "assigned_at")

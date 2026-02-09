@@ -26,6 +26,8 @@ const Registration = () => {
     institute: "",
     passingYear: "",
     linkedInUrl: "",
+    facebookUrl: "",
+    twitterUrl: "",
     skills: [],
     certifications: "",
   });
@@ -118,6 +120,8 @@ const Registration = () => {
           institute: u.institute || prev.institute,
           passingYear: u.passing_year || prev.passingYear,
           linkedInUrl: u.linked_in_url || prev.linkedInUrl,
+          facebookUrl: u.facebook_url || prev.facebookUrl,
+          twitterUrl: u.twitter_url || prev.twitterUrl,
           skills: Array.isArray(u.skills)
             ? u.skills
             : u.skills
@@ -171,6 +175,8 @@ const Registration = () => {
       if (form.institute) fd.append("institute", form.institute);
       if (form.passingYear) fd.append("passing_year", form.passingYear);
       if (form.linkedInUrl) fd.append("linked_in_url", form.linkedInUrl);
+      if (form.facebookUrl) fd.append("facebook_url", form.facebookUrl);
+      if (form.twitterUrl) fd.append("twitter_url", form.twitterUrl);
       if (form.certifications) fd.append("certifications", form.certifications);
       if (form.skills && form.skills.length)
         fd.append("skills", JSON.stringify(form.skills));
@@ -572,6 +578,32 @@ const Registration = () => {
                   className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
               </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Facebook URL
+                </label>
+                <input
+                  name="facebookUrl"
+                  value={form.facebookUrl}
+                  onChange={handleChange}
+                  placeholder="Facebook URL"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Twitter URL (X)
+                </label>
+                <input
+                  name="twitterUrl"
+                  value={form.twitterUrl}
+                  onChange={handleChange}
+                  placeholder="Twitter URL (X)"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div ref={skillsRef} className="relative">
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
                   Skills
@@ -623,8 +655,20 @@ const Registration = () => {
                   className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
               </div>
-            </div>
 
+              <div>
+                {/* <label className="block text-sm text-slate-700 dark:text-slate-300">
+                  Passing Year
+                </label>
+                <input
+                  name="passingYear"
+                  value={form.passingYear}
+                  onChange={handleChange}
+                  placeholder="Passing Year"
+                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                /> */}
+              </div>
+            </div>
 
             <button
               type="submit"

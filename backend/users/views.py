@@ -10,7 +10,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
-from core.models import MembershipCategory
+from core.models import MembershipCategory, AssignMembership
+from django.db import IntegrityError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
@@ -79,6 +80,8 @@ def register(request):
         set_if_present("institute")
         set_if_present("passing_year")
         set_if_present("linked_in_url")
+        set_if_present("facebook_url")
+        set_if_present("twitter_url")
         set_if_present("certifications")
 
         # skills: if JSON list or comma-separated string
@@ -154,6 +157,12 @@ def users_list(request):
         except Exception:
             mc = None
 
+        # include AssignMembership fields if present
+        am = AssignMembership.objects.filter(user=u).first()
+        member_id_val = am.member_id if am else None
+        designation_val = am.designation if am else None
+        committee_val = am.committee_type if am else None
+
         results.append(
             {
                 "id": u.id,
@@ -164,6 +173,9 @@ def users_list(request):
                 "date_joined": u.date_joined,
                 "is_active": u.is_active,
                 "membership_category": mc,
+                "member_id": member_id_val,
+                "designation": designation_val,
+                "committee_type": committee_val,
             }
         )
 
@@ -205,6 +217,8 @@ def user_detail(request, pk):
             "institute": user.institute,
             "passing_year": user.passing_year,
             "linked_in_url": user.linked_in_url,
+            "facebook_url": user.facebook_url,
+            "twitter_url": user.twitter_url,
             "skills": user.skills,
             "certifications": user.certifications,
             "is_active": user.is_active,
@@ -225,8 +239,26 @@ def user_detail(request, pk):
                     "id": user.membership_category.id,
                     "name": user.membership_category.name,
                 }
+            else:
+                data["membership_category"] = None
         except Exception:
             data["membership_category"] = None
+
+        # include assign membership details if present
+        try:
+            am = AssignMembership.objects.filter(user=user).first()
+            if am:
+                data["member_id"] = am.member_id
+                data["designation"] = am.designation
+                data["committee_type"] = am.committee_type
+            else:
+                data["member_id"] = None
+                data["designation"] = None
+                data["committee_type"] = None
+        except Exception:
+            data["member_id"] = None
+            data["designation"] = None
+            data["committee_type"] = None
 
         return Response(data, status=status.HTTP_200_OK)
 
@@ -287,6 +319,8 @@ def user_detail(request, pk):
             set_if_present("institute")
             set_if_present("passing_year")
             set_if_present("linked_in_url")
+            set_if_present("facebook_url")
+            set_if_present("twitter_url")
             set_if_present("certifications")
 
             # skills: accept JSON string or list
@@ -315,24 +349,83 @@ def user_detail(request, pk):
             if photo:
                 user.photography = photo
 
-            # membership_category: accept id or name
-            cat_val = data.get("membership_category") or data.get("category")
-            if cat_val:
-                try:
-                    mc = None
+            # membership_category: accept id or name; allow explicit null to clear
+            if (
+                "membership_category" in data
+                and data.get("membership_category") is None
+            ):
+                user.membership_category = None
+            else:
+                cat_val = data.get("membership_category") or data.get("category")
+                if cat_val:
                     try:
-                        mc = MembershipCategory.objects.get(pk=int(cat_val))
-                    except Exception:
-                        mc = MembershipCategory.objects.filter(
-                            name__iexact=cat_val
-                        ).first()
+                        mc = None
+                        try:
+                            mc = MembershipCategory.objects.get(pk=int(cat_val))
+                        except Exception:
+                            mc = MembershipCategory.objects.filter(
+                                name__iexact=cat_val
+                            ).first()
 
-                    if mc:
-                        user.membership_category = mc
-                except Exception:
-                    pass
+                        if mc:
+                            user.membership_category = mc
+                    except Exception:
+                        pass
 
             user.save()
+
+            # Handle AssignMembership creation/update/deletion based on provided fields
+            try:
+                # raw values from request (could be None)
+                member_id_val = data.get("member_id")
+                designation_val = data.get("designation")
+                committee_val = data.get("committee_type") or data.get("committeeType")
+                # If client explicitly sent membership_category as null -> remove assignment
+                if (
+                    "membership_category" in data
+                    and data.get("membership_category") is None
+                ):
+                    AssignMembership.objects.filter(user=user).delete()
+                else:
+                    # if any assignment-related field provided, create or update record
+                    if (
+                        member_id_val is not None
+                        or designation_val is not None
+                        or committee_val is not None
+                        or (getattr(user, "membership_category", None) is not None)
+                    ):
+                        am = AssignMembership.objects.filter(user=user).first()
+                        if am:
+                            if member_id_val:
+                                am.member_id = member_id_val
+                            if designation_val is not None:
+                                am.designation = designation_val or ""
+                            if committee_val is not None:
+                                am.committee_type = committee_val or ""
+                            # set membership_category from user's membership_category if present
+                            if getattr(user, "membership_category", None):
+                                am.membership_category = user.membership_category
+                            am.save()
+                        else:
+                            # only create if we have a member_id and membership_category
+                            if member_id_val and getattr(
+                                user, "membership_category", None
+                            ):
+                                try:
+                                    AssignMembership.objects.create(
+                                        user=user,
+                                        membership_category=user.membership_category,
+                                        member_id=member_id_val,
+                                        designation=designation_val or "",
+                                        committee_type=committee_val or "",
+                                    )
+                                except IntegrityError:
+                                    # if member_id unique conflict, ignore and continue
+                                    pass
+            except Exception:
+                # ignore assignment errors to avoid failing user update
+                pass
+
             return Response({"message": "Update successful"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(

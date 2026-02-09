@@ -10,6 +10,9 @@ export default function AssignMember() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [memberId, setMemberId] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [committeeType, setCommitteeType] = useState("");
 
   const wrapperRef = useRef(null);
 
@@ -63,9 +66,10 @@ export default function AssignMember() {
   });
 
   const addMember = (user) => {
-    // require mobile number before selecting/assigning
     if (!user.phone) {
-      alert("Cannot select member without a mobile number. Please update the member's phone first.");
+      alert(
+        "Cannot select member without a mobile number. Please update the member's phone first.",
+      );
       setDropdownOpen(false);
       setSearch("");
       return;
@@ -80,8 +84,40 @@ export default function AssignMember() {
   const removeMember = (id) =>
     setSelectedMembers((s) => s.filter((x) => x.id !== id));
 
+  const handleEdit = (u) => {
+    setSelectedMembers([u]);
+    setSelectedCategory(u.membership_category?.id || "");
+    setMemberId(u.member_id || "");
+    setDesignation(u.designation || "");
+    setCommitteeType(u.committee_type || "");
+    setSearch("");
+    setDropdownOpen(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const removeAssignment = async (u) => {
+    if (!window.confirm("Remove membership assignment for this member?"))
+      return;
+    setLoading(true);
+    try {
+      await axios.patch(`users/${u.id}/`, {
+        membership_category: null,
+        member_id: "",
+        designation: "",
+        committee_type: "",
+      });
+      const res = await axios.get("users/");
+      setUsers(res.data || []);
+      alert("Removed assignment");
+    } catch (e) {
+      console.error(e);
+      alert("Failed to remove assignment. Check console.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const assignCategory = async () => {
-    if (!selectedCategory) return alert("Please select a category");
     if (selectedMembers.length === 0)
       return alert("Please select at least one member");
     setLoading(true);
@@ -89,15 +125,23 @@ export default function AssignMember() {
       await Promise.all(
         selectedMembers.map((m) =>
           axios.patch(`users/${m.id}/`, {
-            membership_category: selectedCategory,
+            ...(selectedCategory
+              ? { membership_category: selectedCategory }
+              : {}),
+            ...(memberId ? { member_id: memberId } : {}),
+            ...(designation ? { designation } : {}),
+            ...(committeeType ? { committee_type: committeeType } : {}),
           }),
         ),
       );
-      // refresh users list
+
       const res = await axios.get("users/");
       setUsers(res.data || []);
       setSelectedMembers([]);
       setSelectedCategory("");
+      setMemberId("");
+      setDesignation("");
+      setCommitteeType("");
       alert("Assigned category successfully");
     } catch (e) {
       console.error(e);
@@ -107,7 +151,6 @@ export default function AssignMember() {
     }
   };
 
-  // list of assigned members for the list page
   const assigned = users.filter((u) => u.membership_category);
 
   return (
@@ -159,7 +202,8 @@ export default function AssignMember() {
               className="flex items-center gap-2 bg-slate-100 px-2 py-1 rounded"
             >
               <span className="text-sm">
-                {m.first_name || m.username} {m.last_name} {m.phone ? `(${m.phone})` : ""}
+                {m.first_name || m.username} {m.last_name}{" "}
+                {m.phone ? `(${m.phone})` : ""}
               </span>
               <button
                 onClick={() => removeMember(m.id)}
@@ -170,22 +214,56 @@ export default function AssignMember() {
             </div>
           ))}
         </div>
+
+        <div className="mt-4">
+          <label className="block text-sm mb-1">Select Category</label>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">-- choose category --</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name} {c.price ? `- ${c.price}` : ""}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div className="mb-4">
-        <label className="block text-sm mb-1">Select Category</label>
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="w-full p-2 border rounded"
-        >
-          <option value="">-- choose category --</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name} {c.price ? `- ${c.price}` : ""}
-            </option>
-          ))}
-        </select>
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label className="block text-sm mb-1">Member ID</label>
+          <input
+            value={memberId}
+            onChange={(e) => setMemberId(e.target.value)}
+            placeholder="Member ID"
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Designation</label>
+          <input
+            value={designation}
+            onChange={(e) => setDesignation(e.target.value)}
+            placeholder="Designation"
+            className="w-full p-2 border rounded"
+          />
+        </div>
+        <div>
+          <label className="block text-sm mb-1">Committee Type</label>
+          <select
+            value={committeeType}
+            onChange={(e) => setCommitteeType(e.target.value)}
+            className="w-full p-2 border rounded"
+          >
+            <option value="">-- choose committee type --</option>
+            <option value="Executive Committee">Executive Committee</option>
+            <option value="Standing">Standing</option>
+            <option value="Branch">Branch</option>
+          </select>
+        </div>
       </div>
 
       <div className="mb-6 flex gap-2">
@@ -201,6 +279,9 @@ export default function AssignMember() {
             setSelectedMembers([]);
             setSelectedCategory("");
             setSearch("");
+            setMemberId("");
+            setDesignation("");
+            setCommitteeType("");
           }}
           className="px-4 py-2 bg-gray-200 rounded"
         >
@@ -216,13 +297,17 @@ export default function AssignMember() {
               <th className="px-4 py-2 text-left">Name</th>
               <th className="px-4 py-2 text-left">Phone</th>
               <th className="px-4 py-2 text-left">Category</th>
+              <th className="px-4 py-2 text-left">Member ID</th>
+              <th className="px-4 py-2 text-left">Designation</th>
+              <th className="px-4 py-2 text-left">Committee Type</th>
               <th className="px-4 py-2 text-left">Joined</th>
+              <th className="px-4 py-2 text-left">Actions</th>
             </tr>
           </thead>
           <tbody>
             {assigned.length === 0 ? (
               <tr>
-                <td colSpan={4} className="p-4 text-sm text-slate-500">
+                <td colSpan={8} className="p-4 text-sm text-slate-500">
                   No assigned members
                 </td>
               </tr>
@@ -237,10 +322,27 @@ export default function AssignMember() {
                     {(u.membership_category && u.membership_category.name) ||
                       "-"}
                   </td>
+                  <td className="px-4 py-2">{u.member_id || "-"}</td>
+                  <td className="px-4 py-2">{u.designation || "-"}</td>
+                  <td className="px-4 py-2">{u.committee_type || "-"}</td>
                   <td className="px-4 py-2">
                     {u.date_joined
                       ? new Date(u.date_joined).toLocaleDateString()
                       : "-"}
+                  </td>
+                  <td className="px-4 py-2 flex items-center gap-3">
+                    <button
+                      onClick={() => handleEdit(u)}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => removeAssignment(u)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))

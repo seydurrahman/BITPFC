@@ -120,6 +120,9 @@ USE_TZ = True
 
 AUTH_USER_MODEL = "users.User"
 
+# Use BigAutoField by default for new models
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
