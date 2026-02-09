@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AssignMembership, Banner, MembershipCategory
+from .models import AssignMembership, Banner, MembershipCategory, NewsRoom
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -97,3 +97,18 @@ class AssignMembershipSerializer(serializers.ModelSerializer):
             "assigned_at",
         )
         read_only_fields = ("id", "assigned_at")
+
+class NewsRoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewsRoom
+        fields = (
+            "id",
+            "title",
+            "description",
+            "image",
+            "thumbnail",
+            "news_link",
+            "is_active",
+            "created_at",
+        )
+        read_only_fields = ("id", "created_at")

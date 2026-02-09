@@ -1,11 +1,12 @@
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
-from .models import AssignMembership, Banner, MembershipCategory
+from .models import AssignMembership, Banner, MembershipCategory, NewsRoom
 from .serializers import (
     AssignMembershipSerializer,
     BannerSerializer,
     MembershipCategorySerializer,
+    NewsRoomSerializer,
 )
 from .permissions import IsAdminOrReadOnly
 
@@ -32,3 +33,10 @@ class AssignMembershipViewSet(viewsets.ModelViewSet):
     queryset = AssignMembership.objects.all().order_by("-assigned_at")
     serializer_class = AssignMembershipSerializer
     permission_classes = (IsAdminOrReadOnly,)
+
+class NewsRoomViewSet(viewsets.ModelViewSet):
+    queryset = NewsRoom.objects.all().order_by("-id")
+    serializer_class = NewsRoomSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = BannerPagination

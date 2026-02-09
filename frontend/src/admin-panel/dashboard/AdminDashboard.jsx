@@ -9,6 +9,7 @@ function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [open, setOpen] = useState(false);
   const [membersOpen, setMembersOpen] = useState(true);
+  const [newsOpen, setNewsOpen] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -127,6 +128,44 @@ function AdminDashboard() {
                 </div>
               )}
             </div>
+
+            <div>
+              <button
+                onClick={() => setNewsOpen((s) => !s)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded hover:bg-slate-100"
+                aria-expanded={newsOpen}
+                aria-controls="news-submenu"
+              >
+                <span>Media</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-4 w-4 transform transition-transform ${newsOpen ? "rotate-90" : "rotate-0"}`}
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M6 6a1 1 0 011.707-.707L13.414 11l-5.707 5.707A1 1 0 016 16V6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              {newsOpen && (
+                <div
+                  id="news-submenu"
+                  className="ml-3 mt-1 flex flex-col gap-1"
+                >
+                  <Link
+                    to="/admin/media/news-room"
+                    className="px-3 py-1 rounded hover:bg-slate-100 text-sm"
+                  >
+                    News
+                  </Link>
+                </div>
+              )}
+            </div>
+
             <p className="px-3 py-2 rounded border-b-4 border-b-blue-600 text-black">
               Settings
             </p>

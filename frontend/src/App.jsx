@@ -22,6 +22,7 @@ import MembersAdmin from "./admin-panel/main/Members/MembersAdmin";
 import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
 import RegisteredMembers from "./admin-panel/main/Members/RegisteredMembers";
 import AssignMember from "./admin-panel/main/Members/AssignMember";
+import NewsRoomMedia from "./admin-panel/main/media/NewsRoomMedia";
 
 function App() {
   return (
@@ -124,7 +125,9 @@ function App() {
             <Route path="registered" element={<RegisteredMembers />} />
             <Route path="assign" element={<AssignMember />} />
           </Route>
+          <Route path="media/news-room" element={<NewsRoomMedia />} />
         </Route>
+        <Route path="*" element={<div>Page not found</div>} />
       </Routes>
     </BrowserRouter>
   );
