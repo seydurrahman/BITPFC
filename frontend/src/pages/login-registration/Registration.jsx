@@ -15,6 +15,7 @@ const Registration = () => {
     bloodGroup: "",
     dateOfBirth: "",
     photography: null,
+    photographyUrl: "",
     occupation: "",
     jobTitle: "",
     companyName: "",
@@ -57,7 +58,9 @@ const Registration = () => {
   const handleChange = (e) => {
     const { name, type, value, files, multiple, selectedOptions } = e.target;
     if (type === "file") {
-      setForm({ ...form, [name]: files[0] });
+      const file = files[0];
+      const url = file ? URL.createObjectURL(file) : "";
+      setForm({ ...form, [name]: file, photographyUrl: url });
       return;
     }
 
@@ -80,6 +83,7 @@ const Registration = () => {
 
   const [skillsOpen, setSkillsOpen] = useState(false);
   const skillsRef = useRef(null);
+  const photoInputRef = useRef(null);
 
   useEffect(() => {
     const onDocClick = (e) => {
@@ -128,6 +132,19 @@ const Registration = () => {
               ? JSON.parse(u.skills)
               : prev.skills,
           certifications: u.certifications || prev.certifications,
+          photographyUrl: (() => {
+            const p = u.photography || u.photo || "";
+            if (!p) return "";
+            try {
+              const b = api.defaults.baseURL || "";
+              const origin = b.replace(/\/api\/?$/, "").replace(/\/$/, "");
+              if (/^https?:\/\//.test(p)) return p;
+              if (p.startsWith("/")) return `${origin}${p}`;
+              return `${origin}/${p}`;
+            } catch (e) {
+              return p;
+            }
+          })(),
         }));
       } catch (err) {
         console.error("Failed to fetch user for edit", err);
@@ -180,7 +197,8 @@ const Registration = () => {
       if (form.certifications) fd.append("certifications", form.certifications);
       if (form.skills && form.skills.length)
         fd.append("skills", JSON.stringify(form.skills));
-      if (form.photography) fd.append("photography", form.photography);
+      if (form.photography instanceof File)
+        fd.append("photography", form.photography);
 
       let res;
       if (isEdit && editId) {
@@ -310,7 +328,7 @@ const Registration = () => {
                   type="password"
                   value={form.password}
                   onChange={handleChange}
-                  required
+                  required={!isEdit}
                   placeholder="Strong password"
                   className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
@@ -325,7 +343,7 @@ const Registration = () => {
                   type="password"
                   value={form.confirm}
                   onChange={handleChange}
-                  required
+                  required={!isEdit}
                   placeholder="Repeat password"
                   className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
                 />
@@ -412,13 +430,38 @@ const Registration = () => {
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
                   Photography
                 </label>
-                <input
-                  name="photography"
-                  type="file"
-                  accept=".png,.pdf,image/png,application/pdf"
-                  onChange={handleChange}
-                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
-                />
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      form.photography instanceof File
+                        ? form.photography.name
+                        : form.photographyUrl
+                          ? form.photographyUrl.split("/").pop()
+                          : ""
+                    }
+                    placeholder="No file chosen"
+                    className="flex-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      photoInputRef.current && photoInputRef.current.click()
+                    }
+                    className="px-3 py-2 bg-sky-600 text-white rounded-md"
+                  >
+                    Choose
+                  </button>
+                  <input
+                    ref={photoInputRef}
+                    name="photography"
+                    type="file"
+                    accept=".png,.pdf,image/png,application/pdf"
+                    onChange={handleChange}
+                    className="hidden"
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
@@ -643,6 +686,7 @@ const Registration = () => {
                   </div>
                 )}
               </div>
+
               <div>
                 <label className="block text-sm text-slate-700 dark:text-slate-300">
                   Certifications
@@ -656,18 +700,7 @@ const Registration = () => {
                 />
               </div>
 
-              <div>
-                {/* <label className="block text-sm text-slate-700 dark:text-slate-300">
-                  Passing Year
-                </label>
-                <input
-                  name="passingYear"
-                  value={form.passingYear}
-                  onChange={handleChange}
-                  placeholder="Passing Year"
-                  className="mt-1 block w-full rounded-md border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white p-3"
-                /> */}
-              </div>
+              <div></div>
             </div>
 
             <button
