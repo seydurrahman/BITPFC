@@ -84,6 +84,7 @@ class MembershipCategorySerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Name must be at least 3 characters.")
         return value
 
+
 class AssignMembershipSerializer(serializers.ModelSerializer):
     class Meta:
         model = AssignMembership
@@ -98,17 +99,27 @@ class AssignMembershipSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("id", "assigned_at")
 
+
 class NewsRoomSerializer(serializers.ModelSerializer):
+    news_link = serializers.URLField(required=False, allow_null=True, allow_blank=True)
+
     class Meta:
         model = NewsRoom
         fields = (
             "id",
+            "created_at",
+            "updated_at",
             "title",
             "description",
             "image",
             "thumbnail",
             "news_link",
             "is_active",
-            "created_at",
         )
-        read_only_fields = ("id", "created_at")
+        read_only_fields = ("id",)
+
+    def validate_news_link(self, value):
+        # Normalize empty strings to None so blank inputs don't create empty URLs
+        if value == "":
+            return None
+        return value

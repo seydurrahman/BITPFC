@@ -4,6 +4,7 @@ from django.conf import settings
 from io import BytesIO
 from django.core.files.base import ContentFile
 from PIL import Image
+from django.utils import timezone
 
 
 class Banner(models.Model):
@@ -66,15 +67,16 @@ class AssignMembership(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.membership_category.name}"
 
+
 class NewsRoom(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="news/")
-    thumbnail = models.ImageField(
-        upload_to="news/thumbnails/", blank=True, null=True
-    )
+    thumbnail = models.ImageField(upload_to="news/thumbnails/", blank=True, null=True)
     is_active = models.BooleanField(default=True)
     news_link = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return self.title
