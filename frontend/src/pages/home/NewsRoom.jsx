@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -6,61 +6,50 @@ import {
   User,
   ArrowRight as Arrow,
 } from "lucide-react";
-import img1 from "../../assets/Screenshot_1.png";
-import img2 from "../../assets/Screenshot_2.png";
-import img3 from "../../assets/Screenshot_3.png";
-
-const news = [
-  {
-    id: 1,
-    date: "August 26, 2024",
-    author: "Admin",
-    title: "Fostering collaboration between BITPCL and BCS",
-    excerpt:
-      "On the 17th of March, 2024, Bangladesh IT Professionals Club paid a courtesy visit to the Bangladesh...",
-    image: img1,
-  },
-  {
-    id: 2,
-    date: "August 26, 2024",
-    author: "Admin",
-    title:
-      "3rd IT Conference by the Bangladesh IT Professionals Club was successfully held",
-    excerpt:
-      "The 3rd IT conference of Bangladesh IT Professionals Club, the largest organization of IT profess...",
-    image: img2,
-  },
-  {
-    id: 3,
-    date: "August 26, 2024",
-    author: "Admin",
-    title: "BITPCL congratulates BASIS newly elected President Russell T Ahmed",
-    excerpt:
-      "On June 29, 2024, Bangladesh IT Professionals Club extended felicitations to Mr. Russell T. Ahmed...",
-    image: img3,
-  },
-  {
-    id: 4,
-    date: "August 26, 2024",
-    author: "Admin",
-    title:
-      "Axentec welcomed the BITPCL’s new executive committee for a courtesy meeting",
-    excerpt:
-      "The new executive committee of Bangladesh IT Professionals Club recently paid a courtesy visit to...",
-    image: img1,
-  },
-  {
-    id: 5,
-    date: "August 26, 2024",
-    author: "Admin",
-    title: "Another news item",
-    excerpt: "Short excerpt for the item...",
-    image: img2,
-  },
-];
+import axios from "../../api/axios";
 
 export default function NewsRoom() {
   const containerRef = useRef(null);
+  const [newsItems, setNewsItems] = useState([]);
+  const [selectedNews, setSelectedNews] = useState(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+
+  const backendOrigin = (() => {
+    try {
+      const b = axios.defaults.baseURL || "";
+      return b.replace(/\/api\/?$/, "").replace(/\/$/, "");
+    } catch (e) {
+      return "";
+    }
+  })();
+
+  const resolveImage = (path) => {
+    if (!path) return null;
+    if (typeof path === "string" && /^https?:\/\//.test(path)) return path;
+    const cleaned = (path || "").replace(/^\//, "");
+    if (/^media\//.test(cleaned)) return `${backendOrigin}/${cleaned}`;
+    if (/^photos\//.test(cleaned)) return `${backendOrigin}/media/${cleaned}`;
+    return `${backendOrigin}/${cleaned}`;
+  };
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        const res = await axios.get("news-room/");
+        const data = res.data;
+        let items = [];
+        if (Array.isArray(data)) items = data;
+        else if (data && Array.isArray(data.results)) items = data.results;
+        else if (data) items = [data];
+        // only show active items
+        items = items.filter((i) => i.is_active !== false);
+        setNewsItems(items);
+      } catch (e) {
+        console.error("Failed to load news", e);
+      }
+    };
+    fetchNews();
+  }, []);
 
   const page = (dir = 1) => {
     const el = containerRef.current;
@@ -81,7 +70,7 @@ export default function NewsRoom() {
             ref={containerRef}
             className="flex gap-6 overflow-x-auto no-scrollbar py-2 scroll-smooth"
           >
-            {news.map((n) => (
+            {newsItems.map((n) => (
               <article
                 key={n.id}
                 className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex-shrink-0"
@@ -91,41 +80,115 @@ export default function NewsRoom() {
                 }}
               >
                 <div className="h-40 overflow-hidden">
-                  <img
-                    src={n.image}
-                    alt={n.title}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                  />
+                  {n.image ? (
+                    <img
+                      src={resolveImage(n.image)}
+                      alt={n.title}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-100" />
+                  )}
                 </div>
 
                 <div className="p-4">
                   <div className="flex items-center gap-4 text-sm text-slate-500">
                     <div className="flex items-center gap-1">
                       <Calendar size={16} />
-                      <span>{n.date}</span>
+                      <span>
+                        {n.created_at
+                          ? new Date(n.created_at).toLocaleDateString()
+                          : "-"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1">
                       <User size={16} />
-                      <span>By {n.author}</span>
+                      <span>By Admin</span>
                     </div>
                   </div>
 
                   <h3 className="text-lg font-semibold text-green-800 mt-3 mb-2">
                     {n.title}
                   </h3>
-                  <p className="text-sm text-gray-600 mb-4">{n.excerpt}</p>
+                  <p
+                    className="text-sm text-gray-600 mb-4"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitLineClamp: 8,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {n.description}
+                  </p>
 
-                  <a
-                    href="#"
+                  <button
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      setLoadingDetail(true);
+                      try {
+                        const res = await axios.get(`news-room/${n.id}/`);
+                        setSelectedNews(res.data);
+                      } catch (err) {
+                        console.error("Failed to load news detail", err);
+                      } finally {
+                        setLoadingDetail(false);
+                      }
+                    }}
                     className="inline-flex items-center text-green-800 font-medium hover:underline"
                   >
                     Read more
                     <Arrow className="ml-2" size={16} />
-                  </a>
+                  </button>
                 </div>
               </article>
             ))}
           </div>
+
+          {selectedNews && (
+            <div className="fixed inset-0 z-50 flex items-start justify-center p-6">
+              <div
+                className="absolute inset-0 bg-black/50"
+                onClick={() => setSelectedNews(null)}
+              />
+              <div className="relative max-w-3xl w-full bg-white rounded shadow-lg overflow-auto max-h-[80vh]">
+                <div className="p-4 border-b flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-bold">{selectedNews.title}</h3>
+                    <div className="text-sm text-slate-500">
+                      {selectedNews.created_at
+                        ? new Date(selectedNews.created_at).toLocaleString()
+                        : "-"}
+                      {" • "}By Admin
+                    </div>
+                  </div>
+                  <div>
+                    <button
+                      onClick={() => setSelectedNews(null)}
+                      className="px-3 py-1 bg-gray-100 rounded"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+                {selectedNews.image && (
+                  <div className="w-full h-64 bg-gray-100">
+                    <img
+                      src={resolveImage(selectedNews.image)}
+                      alt={selectedNews.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="p-4">
+                  <div className="prose max-w-none">
+                    <p>{selectedNews.description}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* pager buttons */}
           <div className="absolute -bottom-10 left-1/2 transform -translate-x-1/2 flex gap-3">
