@@ -86,18 +86,64 @@ class MembershipCategorySerializer(serializers.ModelSerializer):
 
 
 class AssignMembershipSerializer(serializers.ModelSerializer):
+    user_detail = serializers.SerializerMethodField()
+    membership_category_name = serializers.SerializerMethodField()
+
     class Meta:
         model = AssignMembership
         fields = (
             "id",
             "user",
+            "user_detail",
             "membership_category",
+            "membership_category_name",
             "member_id",
             "committee_type",
             "designation",
             "assigned_at",
         )
         read_only_fields = ("id", "assigned_at")
+
+    def get_user_detail(self, obj):
+        request = self.context.get("request")
+        user = obj.user
+        data = {
+            "id": user.id,
+            "username": user.username,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email,
+        }
+        try:
+            if getattr(user, "photography", None):
+                data["photography_url"] = (
+                    request.build_absolute_uri(user.photography.url)
+                    if request
+                    else user.photography.url
+                )
+            else:
+                data["photography_url"] = None
+        except Exception:
+            data["photography_url"] = None
+
+        try:
+            if getattr(user, "membership_category", None):
+                data["membership_category"] = {
+                    "id": user.membership_category.id,
+                    "name": user.membership_category.name,
+                }
+            else:
+                data["membership_category"] = None
+        except Exception:
+            data["membership_category"] = None
+
+        return data
+
+    def get_membership_category_name(self, obj):
+        try:
+            return obj.membership_category.name if obj.membership_category else None
+        except Exception:
+            return None
 
 
 class NewsRoomSerializer(serializers.ModelSerializer):

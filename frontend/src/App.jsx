@@ -12,6 +12,10 @@ import ExecutivesCommittee from "./pages/navbar-content/about-us/Executives_Comm
 import BenifitsOfMember from "./pages/home/BenifitsOfMember";
 import UpcomingEvent from "./pages/home/UpcomingEvent";
 import ExecutiveCommittee from "./pages/home/ExecutiveCommmittee";
+import MemberList from "./pages/navbar-content/membership/MemberList";
+import MemberCriteria from "./pages/navbar-content/membership/MemberCriteria";
+import MembershipFee from "./pages/navbar-content/membership/MembershipFee";
+import CodeOfConduct from "./pages/navbar-content/membership/CodeOfConduct";
 import NewsRoom from "./pages/home/NewsRoom";
 import OurPartner from "./pages/home/OurPartner";
 import Registration from "./pages/login-registration/Registration";
@@ -91,6 +95,59 @@ function App() {
             </Layout>
           }
         />
+        <Route
+          path="/membership/memberlist"
+          element={
+            <Layout>
+              <MemberList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/membership/list"
+          element={
+            <Layout>
+              <MemberList />
+            </Layout>
+          }
+        />
+        <Route
+          path="/membership/criteria"
+          element={
+            <Layout>
+              <MemberCriteria />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/membership/fee"
+          element={
+            <Layout>
+              <MembershipFee />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/membership/code-of-conduct"
+          element={
+            <Layout>
+              <CodeOfConduct />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/media/news"
+          element={
+            <Layout>
+              {" "}
+              <NewsRoom />
+            </Layout>
+          }
+        />
+
         <Route
           path="/about/vision"
           element={

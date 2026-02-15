@@ -109,43 +109,17 @@ export default function ExecutiveCommmittee() {
       };
     };
 
+    // Use public assign-memberships API which exposes assigned members
     axios
-      .get("users/")
+      .get("assign-memberships/")
       .then(async (res) => {
         if (!mounted) return;
         if (!Array.isArray(res.data)) return;
 
-        // Show only registered users (those with a member_id)
-        const registered = res.data.filter((u) => u.member_id);
+        // Each item is an AssignMembership object and includes member_id
+        const registered = res.data.filter((a) => a.member_id);
         if (registered.length) {
-          // for users missing a photo field in the list endpoint, fetch detail
-          const needDetail = registered.filter(
-            (u) =>
-              !u.photography && !u.photo && !u.photography_url && !u.photo_url,
-          );
-
-          if (needDetail.length) {
-            await Promise.all(
-              needDetail.map(async (u) => {
-                try {
-                  const detail = await axios.get(`users/${u.id}/`);
-                  const d = detail.data || {};
-                  // merge photography fields into the list user object
-                  u.photography =
-                    u.photography ||
-                    d.photography ||
-                    d.photo ||
-                    d.photography_url ||
-                    d.photo_url ||
-                    u.photography;
-                } catch (e) {
-                  // ignore per-user fetch errors
-                }
-              }),
-            );
-          }
-
-          // sort by numeric member_id (handles zero-padded IDs like "0001")
+          // sort by numeric member_id
           registered.sort((a, b) => {
             const na =
               parseInt((a.member_id || "").replace(/\D/g, ""), 10) || 0;
@@ -154,15 +128,31 @@ export default function ExecutiveCommmittee() {
             return na - nb;
           });
 
-          setMembers(registered.map((u) => mapUser(u)));
+          const mapped = registered.map((a) => {
+            const u = a.user_detail || {};
+            const memberKey = a.member_id || String(u.id || a.user || "");
+            const photoField = u.photography_url || u.photography || "";
+
+            return {
+              id: u.id || a.user || a.id,
+              name: `${u.first_name || u.username || ""} ${u.last_name || ""}`.trim(),
+              designation: a.designation || a.committee_type || "",
+              photo: photoField || null,
+              badge:
+                a.membership_category_name ||
+                (u.membership_category && u.membership_category.name) ||
+                "Member",
+              member_id: a.member_id || "",
+            };
+          });
+
+          setMembers(mapped.map((u) => mapUser(u)));
           return;
         }
 
-        // If no registered users, show empty list (no placeholder)
         setMembers([]);
       })
       .catch(() => {
-        // On error, keep list empty
         setMembers([]);
       });
 

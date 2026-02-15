@@ -1,18 +1,12 @@
-import img1 from "../../assets/Executive-Committee/1.png";
-import img2 from "../../assets/Executive-Committee/2.png";
-import img3 from "../../assets/Executive-Committee/3.png";
-import img4 from "../../assets/Executive-Committee/4.png";
+import img1 from "../../assets/Partners/partner1.png";
 
 const partners = [
   {
     id: 1,
     logo: img1,
-    name: "TechOne Ltd.",
-    slogan: "Innovating IT Solutions",
+    name: "SPINNRT TECH",
+    slogan: "Software & Mobile App Development.",
   },
-  { id: 2, logo: img2, name: "DevStudio", slogan: "Build. Ship. Scale." },
-  { id: 3, logo: img3, name: "CloudWorks", slogan: "Cloud-first strategies" },
-  { id: 4, logo: img4, name: "DataSense", slogan: "Insights that matter" },
 ];
 
 export default function OurPartner() {
@@ -22,17 +16,18 @@ export default function OurPartner() {
         <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">
           Our Partners
         </h2>
-        <p className="text-2xl text-slate-700 mb-8">
+        <p className="text-xl text-slate-700 mb-8">
           Working With our partners to bring digital innovation to your business
         </p>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 items-stretch">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6 items-stretch">
           {partners.map((p) => (
             <div
               key={p.id}
-              className="bg-white border rounded-lg p-4 flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left hover:shadow-lg transition"
+              className="bg-white border rounded-xl p-6 flex flex-col sm:flex-row items-center gap-5 hover:shadow-md transition"
             >
-              <div className="w-20 h-20 mr-4 flex-shrink-0 flex items-center justify-center">
+              {/* Big Logo */}
+              <div className="w-48 h-26 flex items-center justify-center flex-shrink-0">
                 <img
                   src={p.logo}
                   alt={p.name}
@@ -40,11 +35,12 @@ export default function OurPartner() {
                 />
               </div>
 
-              <div className="flex-1">
-                <div className="font-semibold text-lg text-slate-800">
+              {/* Text Section */}
+              <div className="flex-1 text-center sm:text-left">
+                <h3 className="font-medium text-base text-slate-800">
                   {p.name}
-                </div>
-                <div className="text-sm text-slate-500 mt-1">{p.slogan}</div>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">{p.slogan}</p>
               </div>
             </div>
           ))}
