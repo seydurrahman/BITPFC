@@ -18,6 +18,9 @@ import MembershipFee from "./pages/navbar-content/membership/MembershipFee";
 import CodeOfConduct from "./pages/navbar-content/membership/CodeOfConduct";
 import News from "./pages/navbar-content/media-center/News";
 import Gallery from "./pages/navbar-content/media-center/Gallery";
+import VideoGallery from "./pages/navbar-content/media-center/VedioGallery";
+import Training from "./pages/navbar-content/study-center/Training";
+import Webinar from "./pages/navbar-content/study-center/Webinar";
 import NewsRoom from "./pages/home/NewsRoom";
 import OurPartner from "./pages/home/OurPartner";
 import Registration from "./pages/login-registration/Registration";
@@ -30,6 +33,7 @@ import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
 import RegisteredMembers from "./admin-panel/main/Members/RegisteredMembers";
 import AssignMember from "./admin-panel/main/Members/AssignMember";
 import NewsRoomMedia from "./admin-panel/main/media/NewsRoomMedia";
+import TrainingWebinar from "./admin-panel/main/media-center/Training-Webinar";
 
 function App() {
   return (
@@ -161,6 +165,33 @@ function App() {
         />
 
         <Route
+          path="/media/videos"
+          element={
+            <Layout>
+              <VideoGallery />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/study/training"
+          element={
+            <Layout>
+              <Training />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/study/webinar"
+          element={
+            <Layout>
+              <Webinar />
+            </Layout>
+          }
+        />
+
+        <Route
           path="/about/vision"
           element={
             <Layout>
@@ -187,6 +218,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />}>
           <Route index element={<div>Welcome to admin dashboard</div>} />
           <Route path="settings/banner" element={<BannerUpload />} />
+          <Route path="settings/study-center" element={<TrainingWebinar />} />
 
           <Route path="members" element={<MembersAdmin />}>
             <Route index element={<MembershipCategory />} />

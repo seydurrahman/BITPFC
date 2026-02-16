@@ -171,7 +171,12 @@ function AdminDashboard() {
                 </div>
               )}
             </div>
-
+            <Link
+              to="/admin/settings/study-center"
+              className="px-3 py-2 rounded hover:bg-slate-100"
+            >
+              Study Center
+            </Link>
             <p className="px-3 py-2 rounded border-b-4 border-b-blue-600 text-black">
               Settings
             </p>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AssignMembership, Banner, Gallery, MembershipCategory, NewsRoom
+from .models import AssignMembership, Banner, Gallery, MembershipCategory, NewsRoom, StudyCenter
 
 
 @admin.register(Banner)
@@ -43,6 +43,18 @@ class NewsRoomAdmin(admin.ModelAdmin):
 
 @admin.register(Gallery)
 class GalleryAdmin(admin.ModelAdmin):
+    list_display = ("title", "created_at", "updated_at")
+    list_filter = ("created_at",)
+    search_fields = ("title",)
+    fields = (
+        "title",
+        "description",
+        "image",
+        "created_at",
+        "updated_at",
+    )
+@admin.register(StudyCenter)
+class StudyCenterAdmin(admin.ModelAdmin):
     list_display = ("title", "created_at", "updated_at")
     list_filter = ("created_at",)
     search_fields = ("title",)

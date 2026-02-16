@@ -1,5 +1,12 @@
 from rest_framework import serializers
-from .models import AssignMembership, Banner, Gallery, MembershipCategory, NewsRoom
+from .models import (
+    AssignMembership,
+    Banner,
+    Gallery,
+    MembershipCategory,
+    NewsRoom,
+    StudyCenter,
+)
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -170,6 +177,7 @@ class NewsRoomSerializer(serializers.ModelSerializer):
             return None
         return value
 
+
 class GallerySerializer(serializers.ModelSerializer):
     class Meta:
         model = Gallery
@@ -178,6 +186,22 @@ class GallerySerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "title",
+            "description",
+            "image",
+            "thumbnail",
+        )
+        read_only_fields = ("id",)
+
+
+class StudyCenterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyCenter
+        fields = (
+            "id",
+            "created_at",
+            "updated_at",
+            "title",
+            "type",
             "description",
             "image",
             "thumbnail",
