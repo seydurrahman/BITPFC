@@ -17,6 +17,7 @@ import MemberCriteria from "./pages/navbar-content/membership/MemberCriteria";
 import MembershipFee from "./pages/navbar-content/membership/MembershipFee";
 import CodeOfConduct from "./pages/navbar-content/membership/CodeOfConduct";
 import News from "./pages/navbar-content/media-center/News";
+import Gallery from "./pages/navbar-content/media-center/Gallery";
 import NewsRoom from "./pages/home/NewsRoom";
 import OurPartner from "./pages/home/OurPartner";
 import Registration from "./pages/login-registration/Registration";
@@ -146,6 +147,15 @@ function App() {
             <Layout>
               {" "}
               <News />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/media/photos"
+          element={
+            <Layout>
+              <Gallery />
             </Layout>
           }
         />
