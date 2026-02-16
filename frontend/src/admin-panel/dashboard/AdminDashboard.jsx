@@ -168,6 +168,14 @@ function AdminDashboard() {
                   >
                     Gallery
                   </Link>
+
+                  <Link
+                    to="/admin/media/video-media"
+                    className="px-3 py-1 rounded hover:bg-slate-100 text-sm"
+                  >
+                    Videos
+                  </Link>
+
                 </div>
               )}
             </div>
@@ -177,6 +185,14 @@ function AdminDashboard() {
             >
               Study Center
             </Link>
+
+            <Link
+              to="/admin/settings/knowledge-sharing"
+              className="px-3 py-2 rounded hover:bg-slate-100"
+            >
+              Events
+            </Link>
+
             <p className="px-3 py-2 rounded border-b-4 border-b-blue-600 text-black">
               Settings
             </p>

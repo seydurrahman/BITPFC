@@ -1,7 +1,17 @@
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
-from .models import AssignMembership, Banner, Gallery, MembershipCategory, NewsRoom, StudyCenter
+from .models import (
+    AssignMembership,
+    Banner,
+    Gallery,
+    MembershipCategory,
+    NewsRoom,
+    StudyCenter,
+    Events,
+    VideoMedia,
+    Album,
+)
 from .serializers import (
     AssignMembershipSerializer,
     BannerSerializer,
@@ -9,6 +19,9 @@ from .serializers import (
     MembershipCategorySerializer,
     NewsRoomSerializer,
     StudyCenterSerializer,
+    EventSerializer,
+    VideoMediaSerializer,
+    AlbumSerializer,
 )
 from .permissions import IsAdminOrReadOnly
 
@@ -36,12 +49,14 @@ class AssignMembershipViewSet(viewsets.ModelViewSet):
     serializer_class = AssignMembershipSerializer
     permission_classes = (IsAdminOrReadOnly,)
 
+
 class NewsRoomViewSet(viewsets.ModelViewSet):
     queryset = NewsRoom.objects.all().order_by("-id")
     serializer_class = NewsRoomSerializer
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = BannerPagination
+
 
 class GalleryViewSet(viewsets.ModelViewSet):
     queryset = Gallery.objects.all().order_by("-id")
@@ -50,9 +65,32 @@ class GalleryViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = BannerPagination
 
+
+class VideoMediaViewSet(viewsets.ModelViewSet):
+    queryset = VideoMedia.objects.all().order_by("-id")
+    serializer_class = VideoMediaSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = BannerPagination
+
+
+class AlbumViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects.all().order_by("-id")
+    serializer_class = AlbumSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+
 class StudyCenterViewSet(viewsets.ModelViewSet):
     queryset = StudyCenter.objects.all().order_by("-id")
     serializer_class = StudyCenterSerializer
+    parser_classes = (MultiPartParser, FormParser)
+    permission_classes = (IsAdminOrReadOnly,)
+    pagination_class = BannerPagination
+
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Events.objects.all().order_by("-id")
+    serializer_class = EventSerializer
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = BannerPagination

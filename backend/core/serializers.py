@@ -5,6 +5,9 @@ from .models import (
     Gallery,
     MembershipCategory,
     NewsRoom,
+    Events,
+    Album,
+    VideoMedia,
     StudyCenter,
 )
 
@@ -193,6 +196,29 @@ class GallerySerializer(serializers.ModelSerializer):
         read_only_fields = ("id",)
 
 
+class VideoMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VideoMedia
+        fields = (
+            "id",
+            "created_at",
+            "updated_at",
+            "title",
+            "description",
+            "video_url",
+            "thumbnail",
+            "album",
+        )
+        read_only_fields = ("id",)
+
+
+class AlbumSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Album
+        fields = ("id", "name", "description", "created_at")
+        read_only_fields = ("id", "created_at")
+
+
 class StudyCenterSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyCenter
@@ -205,5 +231,22 @@ class StudyCenterSerializer(serializers.ModelSerializer):
             "description",
             "image",
             "thumbnail",
+        )
+        read_only_fields = ("id",)
+
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Events
+        fields = (
+            "id",
+            "created_at",
+            "updated_at",
+            "title",
+            "description",
+            "image",
+            "thumbnail",
+            "event_date",
+            "is_active",
         )
         read_only_fields = ("id",)

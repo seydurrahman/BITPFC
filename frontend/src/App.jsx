@@ -18,7 +18,8 @@ import MembershipFee from "./pages/navbar-content/membership/MembershipFee";
 import CodeOfConduct from "./pages/navbar-content/membership/CodeOfConduct";
 import News from "./pages/navbar-content/media-center/News";
 import Gallery from "./pages/navbar-content/media-center/Gallery";
-import VideoGallery from "./pages/navbar-content/media-center/VedioGallery";
+import VideoGallery from "./pages/navbar-content/media-center/VideoGallery";
+import KnowledgeSharingFr from "./pages/navbar-content/Initiatives/events/KnowledgeSharingFr";
 import Training from "./pages/navbar-content/study-center/Training";
 import Webinar from "./pages/navbar-content/study-center/Webinar";
 import NewsRoom from "./pages/home/NewsRoom";
@@ -33,6 +34,8 @@ import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
 import RegisteredMembers from "./admin-panel/main/Members/RegisteredMembers";
 import AssignMember from "./admin-panel/main/Members/AssignMember";
 import NewsRoomMedia from "./admin-panel/main/media/NewsRoomMedia";
+import VideoMedia from "./admin-panel/main/media/VideoMedia";
+import KnowledgeSharing from "./admin-panel/main/events/Knowledge_Sharing";
 import TrainingWebinar from "./admin-panel/main/media-center/Training-Webinar";
 
 function App() {
@@ -199,6 +202,25 @@ function App() {
             </Layout>
           }
         />
+
+        <Route
+          path="/events/knowledge-sharing"
+          element={
+            <Layout>
+              <KnowledgeSharingFr />
+            </Layout>
+          }
+        />
+
+        <Route
+          path="/initiatives/events/knowledge-sharing"
+          element={
+            <Layout>
+              <KnowledgeSharingFr />
+            </Layout>
+          }
+        />
+
         <Route
           path="/about/goal"
           element={
@@ -219,6 +241,10 @@ function App() {
           <Route index element={<div>Welcome to admin dashboard</div>} />
           <Route path="settings/banner" element={<BannerUpload />} />
           <Route path="settings/study-center" element={<TrainingWebinar />} />
+          <Route
+            path="settings/knowledge-sharing"
+            element={<KnowledgeSharing />}
+          />
 
           <Route path="members" element={<MembersAdmin />}>
             <Route index element={<MembershipCategory />} />
@@ -227,7 +253,12 @@ function App() {
             <Route path="assign" element={<AssignMember />} />
           </Route>
           <Route path="media/news-room" element={<NewsRoomMedia />} />
+          <Route path="media/video-media" element={<VideoMedia />} />
           <Route path="media/gallery" element={<GalleryMedia />} />
+          <Route
+            path="events/knowledge-sharing"
+            element={<KnowledgeSharing />}
+          />
         </Route>
         <Route path="*" element={<div>Page not found</div>} />
       </Routes>

@@ -102,11 +102,14 @@ class NewsRoom(models.Model):
                 # If thumbnail generation fails, ignore silently
                 pass
 
+
 class Gallery(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="gallery/")
-    thumbnail = models.ImageField(upload_to="gallery/thumbnails/", blank=True, null=True)
+    thumbnail = models.ImageField(
+        upload_to="gallery/thumbnails/", blank=True, null=True
+    )
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
 
@@ -134,14 +137,75 @@ class Gallery(models.Model):
                 # If thumbnail generation fails, ignore silently
                 pass
 
+
+class VideoMedia(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    album = models.CharField(max_length=100, blank=True, null=True)
+    video_url = models.URLField()
+    thumbnail = models.ImageField(upload_to="video/thumbnails/", blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title
+
+
+class Album(models.Model):
+    name = models.CharField(max_length=150, unique=True)
+    description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.name
+
+
 class StudyCenter(models.Model):
     title = models.CharField(max_length=200)
-    type = models.CharField(max_length=100, null=True, blank=True)  # e.g., Training, Webinar
+    type = models.CharField(
+        max_length=100, null=True, blank=True
+    )  # e.g., Training, Webinar
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="study-center/")
     thumbnail = models.ImageField(
         upload_to="study-center/thumbnails/", blank=True, null=True
     )
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        # Save original first so `image` has a file
+        super().save(*args, **kwargs)
+
+        if self.image:
+            try:
+                # open image from storage
+                img = Image.open(self.image)
+                img = img.convert("RGB")
+                img.thumbnail((800, 400))
+                thumb_io = BytesIO()
+                img.save(thumb_io, format="JPEG", quality=85)
+                thumb_name = f"thumb_{self.image.name.split('/')[-1].split('\\\\')[-1]}"
+                self.thumbnail.save(
+                    thumb_name, ContentFile(thumb_io.getvalue()), save=False
+                )
+                super().save(update_fields=["thumbnail"])
+            except Exception:
+                # If thumbnail generation fails, ignore silently
+                pass
+
+class Events(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to="events/")
+    thumbnail = models.ImageField(
+        upload_to="events/thumbnails/", blank=True, null=True
+    )
+    event_date = models.DateTimeField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(default=timezone.now)
