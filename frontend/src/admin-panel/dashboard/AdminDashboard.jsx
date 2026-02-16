@@ -162,6 +162,12 @@ function AdminDashboard() {
                   >
                     News
                   </Link>
+                  <Link
+                    to="/admin/media/gallery"
+                    className="px-3 py-1 rounded hover:bg-slate-100 text-sm"
+                  >
+                    Gallery
+                  </Link>
                 </div>
               )}
             </div>

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import AssignMembership, Banner, MembershipCategory, NewsRoom
+from .models import AssignMembership, Banner, Gallery, MembershipCategory, NewsRoom
 
 
 class BannerSerializer(serializers.ModelSerializer):
@@ -169,3 +169,17 @@ class NewsRoomSerializer(serializers.ModelSerializer):
         if value == "":
             return None
         return value
+
+class GallerySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Gallery
+        fields = (
+            "id",
+            "created_at",
+            "updated_at",
+            "title",
+            "description",
+            "image",
+            "thumbnail",
+        )
+        read_only_fields = ("id",)

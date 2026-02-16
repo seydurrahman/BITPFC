@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import { Calendar, User, ArrowRight } from "lucide-react";
-import { resolve } from "path";
 
-export default function News() {
+function News() {
   const [newsItems, setNewsItems] = useState([]);
   const [selectedNews, setSelectedNews] = useState(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -51,14 +50,13 @@ export default function News() {
           News
         </h2>
 
-        {/* Featured top 3 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {newsItems.slice(0, 3).map((n) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {newsItems.map((n) => (
             <article
               key={n.id}
               className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
             >
-              <div className="h-48 overflow-hidden">
+              <div className="h-40 overflow-hidden">
                 {n.image ? (
                   <img
                     src={resolveImage(n.image)}
@@ -115,63 +113,6 @@ export default function News() {
           ))}
         </div>
 
-        {/* Remaining news list */}
-        {newsItems.length > 3 && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {newsItems.slice(3).map((n) => (
-              <article
-                key={n.id}
-                className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
-              >
-                <div className="h-32 overflow-hidden">
-                  {n.image ? (
-                    <img
-                      src={resolveImage(n.image)}
-                      alt={n.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-100" />
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="text-sm text-slate-500 mb-2">
-                    {n.created_at
-                      ? new Date(n.created_at).toLocaleDateString()
-                      : "-"}
-                  </div>
-                  <h4 className="text-md font-semibold text-green-800">
-                    {n.title}
-                  </h4>
-                  <p className="text-sm text-gray-600 mt-2 line-clamp-3">
-                    {n.description}
-                  </p>
-                  <div className="mt-3">
-                    <button
-                      onClick={async (e) => {
-                        e.preventDefault();
-                        setLoadingDetail(true);
-                        try {
-                          const res = await axios.get(`news-room/${n.id}/`);
-                          setSelectedNews(res.data);
-                        } catch (err) {
-                          console.error("Failed to load news detail", err);
-                        } finally {
-                          setLoadingDetail(false);
-                        }
-                      }}
-                      className="inline-flex items-center text-green-800 font-medium hover:underline"
-                    >
-                      Read more
-                      <ArrowRight className="ml-2" size={16} />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-
         {selectedNews && (
           <div className="fixed inset-0 z-50 flex items-start justify-center p-6">
             <div
@@ -219,3 +160,5 @@ export default function News() {
     </section>
   );
 }
+
+export default News;

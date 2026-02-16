@@ -16,12 +16,14 @@ import MemberList from "./pages/navbar-content/membership/MemberList";
 import MemberCriteria from "./pages/navbar-content/membership/MemberCriteria";
 import MembershipFee from "./pages/navbar-content/membership/MembershipFee";
 import CodeOfConduct from "./pages/navbar-content/membership/CodeOfConduct";
+import News from "./pages/navbar-content/media-center/News";
 import NewsRoom from "./pages/home/NewsRoom";
 import OurPartner from "./pages/home/OurPartner";
 import Registration from "./pages/login-registration/Registration";
 import Login from "./pages/login-registration/Login";
 import AdminDashboard from "./admin-panel/dashboard/AdminDashboard";
 import BannerUpload from "./admin-panel/settings/BannerUpload";
+import GalleryMedia from "./admin-panel/main/media/GalleryMedia";
 import MembersAdmin from "./admin-panel/main/Members/MembersAdmin";
 import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
 import RegisteredMembers from "./admin-panel/main/Members/RegisteredMembers";
@@ -143,7 +145,7 @@ function App() {
           element={
             <Layout>
               {" "}
-              <NewsRoom />
+              <News />
             </Layout>
           }
         />
@@ -183,6 +185,7 @@ function App() {
             <Route path="assign" element={<AssignMember />} />
           </Route>
           <Route path="media/news-room" element={<NewsRoomMedia />} />
+          <Route path="media/gallery" element={<GalleryMedia />} />
         </Route>
         <Route path="*" element={<div>Page not found</div>} />
       </Routes>
