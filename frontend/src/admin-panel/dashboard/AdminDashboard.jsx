@@ -47,11 +47,44 @@ function AdminDashboard() {
         <div className="relative border-2 border-blue-600 rounded-md">
           <button
             onClick={() => setOpen((s) => !s)}
-            className="flex items-center gap-3 px-3 py-1 bg-white rounded-md border"
+            className="flex items-center gap-2 px-3 py-1 bg-white rounded-md border"
           >
-            <div className="w-8 h-8 bg-slate-200 rounded-full" />
-            <div className="text-sm text-slate-700 ">
-              {user?.username || user?.email || "Admin"}
+            {(() => {
+              let src =
+                user?.photography_url ||
+                user?.photographyUrl ||
+                user?.photography ||
+                user?.photo ||
+                "/assets/placeholder-avatar.png";
+              try {
+                const isRelative = src && src.startsWith("/");
+                const base = axios.defaults?.baseURL || "";
+                if (isRelative && base && !src.startsWith("http")) {
+                  src = base.replace(/\/$/, "") + src;
+                }
+              } catch (e) {
+                // ignore
+              }
+              return (
+                <img
+                  src={src}
+                  alt={user?.username || "User"}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = "/assets/placeholder-avatar.png";
+                  }}
+                  className="w-10 h-10 rounded-full object-cover ring-2 ring-white border border-slate-200 shadow-sm"
+                />
+              );
+            })()}
+
+            <div className="flex flex-col leading-tight text-left">
+              <span className="text-sm font-medium text-slate-800">
+                {user?.username || "Admin"}
+              </span>
+              <span className="text-xs text-slate-500">
+                {user?.email || ""}
+              </span>
             </div>
           </button>
 
@@ -175,7 +208,6 @@ function AdminDashboard() {
                   >
                     Videos
                   </Link>
-
                 </div>
               )}
             </div>
@@ -203,7 +235,7 @@ function AdminDashboard() {
             >
               Banners
             </Link>
-             <Link
+            <Link
               to="/admin/settings/website-info"
               className="px-3 py-2 rounded hover:bg-slate-100"
             >

@@ -385,7 +385,7 @@ export default function WebsiteInfo() {
         <h3 className="text-lg font-medium">Member Counts</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-3">
           <div className="text-sm">
-            <div className="text-xs text-slate-500">Total</div>
+            <div className="text-xs text-slate-500">Total Members</div>
             {editing ? (
               <input
                 type="number"
@@ -401,7 +401,7 @@ export default function WebsiteInfo() {
           </div>
 
           <div className="text-sm">
-            <div className="text-xs text-slate-500">Life</div>
+            <div className="text-xs text-slate-500">Life Members</div>
             {editing ? (
               <input
                 type="number"
@@ -417,7 +417,7 @@ export default function WebsiteInfo() {
           </div>
 
           <div className="text-sm">
-            <div className="text-xs text-slate-500">Professional</div>
+            <div className="text-xs text-slate-500">Professional Members</div>
             {editing ? (
               <input
                 type="number"
@@ -438,23 +438,7 @@ export default function WebsiteInfo() {
           </div>
 
           <div className="text-sm">
-            <div className="text-xs text-slate-500">Student</div>
-            {editing ? (
-              <input
-                type="number"
-                className="w-full border rounded px-2 py-1"
-                value={form.student_members}
-                onChange={(e) =>
-                  setForm((s) => ({ ...s, student_members: e.target.value }))
-                }
-              />
-            ) : (
-              <div className="text-lg font-semibold">{student_members}</div>
-            )}
-          </div>
-
-          <div className="text-sm">
-            <div className="text-xs text-slate-500">General</div>
+            <div className="text-xs text-slate-500">General Members</div>
             {editing ? (
               <input
                 type="number"
@@ -466,6 +450,22 @@ export default function WebsiteInfo() {
               />
             ) : (
               <div className="text-lg font-semibold">{general_members}</div>
+            )}
+          </div>
+
+          <div className="text-sm">
+            <div className="text-xs text-slate-500">Student Members</div>
+            {editing ? (
+              <input
+                type="number"
+                className="w-full border rounded px-2 py-1"
+                value={form.student_members}
+                onChange={(e) =>
+                  setForm((s) => ({ ...s, student_members: e.target.value }))
+                }
+              />
+            ) : (
+              <div className="text-lg font-semibold">{student_members}</div>
             )}
           </div>
         </div>
