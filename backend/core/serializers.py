@@ -9,6 +9,7 @@ from .models import (
     Album,
     VideoMedia,
     StudyCenter,
+    WebsiteInfo,
 )
 
 
@@ -288,3 +289,28 @@ class EventSerializer(serializers.ModelSerializer):
             )
         # fall back to image url
         return self.get_image_url(obj)
+
+
+class WebsiteInfoSerializer(serializers.Serializer):
+    name = serializers.CharField()
+    value = serializers.CharField()
+
+
+class WebsiteInfoModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WebsiteInfo
+        fields = (
+            "id",
+            "phone_number",
+            "email",
+            "address",
+            "facebook_url",
+            "linkedin_url",
+            "twitter_url",
+            "youtube_url",
+            "total_members",
+            "life_members",
+            "professional_members",
+            "student_members",
+            "general_members",
+        )

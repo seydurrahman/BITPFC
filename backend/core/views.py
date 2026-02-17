@@ -1,3 +1,4 @@
+from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.pagination import PageNumberPagination
@@ -22,6 +23,8 @@ from .serializers import (
     EventSerializer,
     VideoMediaSerializer,
     AlbumSerializer,
+    WebsiteInfoSerializer,
+    WebsiteInfoModelSerializer,
 )
 from .permissions import IsAdminOrReadOnly
 
@@ -94,3 +97,21 @@ class EventViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser)
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = BannerPagination
+
+
+class WebsiteInfoViewSet(viewsets.ModelViewSet):
+    queryset = []
+    serializer_class = WebsiteInfoModelSerializer
+    permission_classes = (IsAdminOrReadOnly,)
+
+    def get_queryset(self):
+        from .models import WebsiteInfo
+
+        return WebsiteInfo.objects.all().order_by("-id")
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        if not qs.exists():
+            return Response([])
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)

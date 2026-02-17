@@ -236,3 +236,16 @@ class Events(models.Model):
             except Exception:
                 # If thumbnail generation fails, ignore silently
                 pass
+class WebsiteInfo(models.Model):
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    facebook_url = models.URLField(blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    twitter_url = models.URLField(blank=True, null=True)
+    youtube_url = models.URLField(blank=True, null=True)
+    total_members = models.PositiveIntegerField(default=0)
+    life_members = models.PositiveIntegerField(default=0)
+    professional_members = models.PositiveIntegerField(default=0)
+    student_members = models.PositiveIntegerField(default=0)
+    general_members = models.PositiveIntegerField(default=0)

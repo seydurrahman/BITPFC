@@ -122,12 +122,12 @@ export default function KnowledgeSharingFr() {
 
   return (
     <div className="space-y-6 py-12">
-      <div className="bg-white rounded shadow">
+      <div className="bg-white rounded shadow mb-32">
         {/* list of events: each item in one row with image left, details right */}
         {loading ? (
           <div className="text-sm text-slate-500">Loading…</div>
         ) : filteredItems && filteredItems.length > 0 ? (
-          <div className="mt-6 space-y-6">
+          <div className="mt-8 space-y-6">
             {filteredItems.map((it) => (
               <div key={it.id} className="space-y-3">
                 <div className="px-4">
@@ -137,7 +137,7 @@ export default function KnowledgeSharingFr() {
                 </div>
                 <article className="bg-white rounded border overflow-hidden flex flex-col md:flex-row items-stretch">
                   <div className="md:w-1/3 w-full">
-                    <div className="h-48 md:h-auto bg-black/5 overflow-hidden flex items-center justify-center">
+                    <div className="h-56 md:h-56 bg-black/5 overflow-hidden flex items-center justify-center">
                       {it.image || it.image_url ? (
                         <img
                           src={resolveImage(it.image || it.image_url)}

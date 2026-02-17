@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import (
     AssignMembership,
     Banner,
@@ -8,6 +9,7 @@ from .models import (
     VideoMedia,
     StudyCenter,
     Events,
+    WebsiteInfo,
 )
 
 
@@ -120,3 +122,9 @@ class EventsAdmin(admin.ModelAdmin):
         "created_at",
         "updated_at",
     )
+
+
+@admin.register(WebsiteInfo)
+class WebsiteInfoAdmin(admin.ModelAdmin):
+    list_display = ("phone_number", "email", "total_members")
+    search_fields = ("email", "phone_number")

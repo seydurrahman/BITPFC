@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import BannerViewSet
+from .views import BannerViewSet, WebsiteInfoViewSet
 from .views import MembershipCategoryViewSet
 from .views import AssignMembershipViewSet
 from .views import NewsRoomViewSet
@@ -9,6 +9,7 @@ from .views import VideoMediaViewSet
 from .views import StudyCenterViewSet
 from .views import AlbumViewSet
 from .views import EventViewSet
+from .views import WebsiteInfoSerializer
 
 router = DefaultRouter()
 router.register(r"banners", BannerViewSet, basename="banner")
@@ -24,6 +25,7 @@ router.register(r"video-media", VideoMediaViewSet, basename="videomedia")
 router.register(r"study-center", StudyCenterViewSet, basename="studycenter")
 router.register(r"events", EventViewSet, basename="event")
 router.register(r"albums", AlbumViewSet, basename="album")
+router.register(r"website-info", WebsiteInfoViewSet, basename="websiteinfo")
 urlpatterns = [
     path("", include(router.urls)),
     path(
@@ -52,5 +54,10 @@ urlpatterns = [
         "events/",
         EventViewSet.as_view({"get": "list"}),
         name="event-list",
+    ),
+    path(
+        "website-info/",
+        WebsiteInfoViewSet.as_view({"get": "list"}),
+        name="website-info-list",
     ),
 ]

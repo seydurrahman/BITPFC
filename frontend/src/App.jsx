@@ -20,6 +20,7 @@ import News from "./pages/navbar-content/media-center/News";
 import Gallery from "./pages/navbar-content/media-center/Gallery";
 import VideoGallery from "./pages/navbar-content/media-center/VideoGallery";
 import KnowledgeSharingFr from "./pages/navbar-content/Initiatives/events/KnowledgeSharingFr";
+import Contact from "./pages/navbar-content/contact/Contact";
 import Training from "./pages/navbar-content/study-center/Training";
 import Webinar from "./pages/navbar-content/study-center/Webinar";
 import NewsRoom from "./pages/home/NewsRoom";
@@ -28,6 +29,7 @@ import Registration from "./pages/login-registration/Registration";
 import Login from "./pages/login-registration/Login";
 import AdminDashboard from "./admin-panel/dashboard/AdminDashboard";
 import BannerUpload from "./admin-panel/settings/BannerUpload";
+import WebsiteInfo from "./admin-panel/settings/WebsiteInfo";
 import GalleryMedia from "./admin-panel/main/media/GalleryMedia";
 import MembersAdmin from "./admin-panel/main/Members/MembersAdmin";
 import MembershipCategory from "./admin-panel/main/Members/MembershipCategory";
@@ -195,6 +197,15 @@ function App() {
         />
 
         <Route
+          path="/contact"
+          element={
+            <Layout>
+              <Contact />
+            </Layout>
+          }
+        />
+
+        <Route
           path="/about/vision"
           element={
             <Layout>
@@ -240,6 +251,7 @@ function App() {
         <Route path="/admin" element={<AdminDashboard />}>
           <Route index element={<div>Welcome to admin dashboard</div>} />
           <Route path="settings/banner" element={<BannerUpload />} />
+          <Route path="settings/website-info" element={<WebsiteInfo />} />
           <Route path="settings/study-center" element={<TrainingWebinar />} />
           <Route
             path="settings/knowledge-sharing"
@@ -259,6 +271,9 @@ function App() {
             path="events/knowledge-sharing"
             element={<KnowledgeSharing />}
           />
+        </Route>
+        <Route path="/admin/settings/website-info" element={<AdminDashboard />}>
+          <Route index element={<WebsiteInfo />} />
         </Route>
         <Route path="*" element={<div>Page not found</div>} />
       </Routes>
