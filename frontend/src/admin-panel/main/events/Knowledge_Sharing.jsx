@@ -5,6 +5,8 @@ export default function KnowledgeSharing() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [type, setType] = useState("Events");
+  const [organizer, setOrganizer] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [items, setItems] = useState([]);
@@ -18,6 +20,24 @@ export default function KnowledgeSharing() {
       return "";
     }
   })();
+
+  const normalizeItem = (i) => {
+    if (!i) return i;
+    return {
+      id: i.id,
+      title: i.title || "",
+      description: i.description || "",
+      event_date: i.event_date || null,
+      image: i.image || null,
+      image_url: i.image_url || null,
+      thumbnail: i.thumbnail || null,
+      thumbnail_url: i.thumbnail_url || null,
+      type: i.type || null,
+      organizer: i.organizer || null,
+      is_active: typeof i.is_active === "boolean" ? i.is_active : true,
+      ...i,
+    };
+  };
 
   const resolveImage = (path) => {
     if (!path) return null;
@@ -36,7 +56,7 @@ export default function KnowledgeSharing() {
         if (Array.isArray(data)) arr = data;
         else if (data && Array.isArray(data.results)) arr = data.results;
         else if (data) arr = [data];
-        setItems(arr.filter((i) => i));
+        setItems(arr.filter((i) => i).map(normalizeItem));
       } catch (e) {
         console.error("Failed to load events", e);
       }
@@ -63,6 +83,8 @@ export default function KnowledgeSharing() {
     const fd = new FormData();
     fd.append("title", title);
     fd.append("description", description);
+    fd.append("type", type);
+    fd.append("organizer", organizer);
     // convert local datetime-local to ISO
     try {
       const iso = new Date(eventDate).toISOString();
@@ -76,11 +98,25 @@ export default function KnowledgeSharing() {
       const res = await axios.post("events/", fd, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      if (res && res.data) setItems((s) => [res.data, ...s]);
+      if (res && res.data) {
+        const newItem = normalizeItem({
+          ...res.data,
+          title,
+          description,
+          event_date: eventDate
+            ? new Date(eventDate).toISOString()
+            : res.data.event_date,
+          type,
+          organizer,
+        });
+        setItems((s) => [newItem, ...s]);
+      }
       // clear
       setTitle("");
       setDescription("");
       setEventDate("");
+      setType("Events");
+      setOrganizer("");
       if (preview) URL.revokeObjectURL(preview);
       setPreview(null);
       setFile(null);
@@ -133,6 +169,32 @@ export default function KnowledgeSharing() {
           rows={3}
         />
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+          <div>
+            <label className="block text-sm text-slate-700 mb-1">Type</label>
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value)}
+              className="border rounded px-2 py-1 w-full"
+            >
+              <option value="Events">Events</option>
+              <option value="Initiatives">Initiatives</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-700 mb-1">
+              Organizer
+            </label>
+            <input
+              value={organizer}
+              onChange={(e) => setOrganizer(e.target.value)}
+              placeholder="Organizer name"
+              className="w-full border rounded px-2 py-1"
+            />
+          </div>
+        </div>
+
         <div className="flex items-center gap-3">
           <label className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded cursor-pointer">
             <input
@@ -172,13 +234,16 @@ export default function KnowledgeSharing() {
               <div key={it.id} className="border rounded overflow-hidden">
                 <div className="h-36 bg-black/5 overflow-hidden">
                   <img
-                    src={resolveImage(it.image)}
+                    src={resolveImage(it.image || it.image_url)}
                     alt={it.title}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div className="p-3 flex items-start justify-between gap-3">
                   <div>
+                    <div className="text-xs inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full mb-1">
+                      {it.type || "-"}
+                    </div>
                     <div className="font-medium text-sm text-green-800">
                       {it.title}
                     </div>
@@ -186,6 +251,9 @@ export default function KnowledgeSharing() {
                       {it.event_date
                         ? new Date(it.event_date).toLocaleDateString()
                         : "-"}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {it.organizer ? `Organizer: ${it.organizer}` : null}
                     </div>
                   </div>
 

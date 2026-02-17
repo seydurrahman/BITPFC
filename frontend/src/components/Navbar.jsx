@@ -273,7 +273,7 @@ const Navbar = ({ topOffset = 0 }) => {
                 <ul className="py-1">
                   <li className="relative group/item">
                     <a
-                      href="/initiatives/events"
+                      
                       className="flex items-center justify-between gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <span className="flex items-center gap-2">
@@ -300,7 +300,7 @@ const Navbar = ({ topOffset = 0 }) => {
 
                   <li className="relative group/item">
                     <a
-                      href="/initiatives"
+                      
                       className="flex items-center justify-between gap-2 px-4 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700"
                     >
                       <span className="flex items-center gap-2">

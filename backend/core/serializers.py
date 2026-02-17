@@ -236,6 +236,15 @@ class StudyCenterSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    thumbnail_url = serializers.SerializerMethodField()
+
+    def validate_type(self, value):
+        # normalize empty string to None
+        if value == "":
+            return None
+        return value
+
     class Meta:
         model = Events
         fields = (
@@ -244,9 +253,38 @@ class EventSerializer(serializers.ModelSerializer):
             "updated_at",
             "title",
             "description",
+            "type",
+            "organizer",
             "image",
+            "image_url",
+            "thumbnail_url",
             "thumbnail",
             "event_date",
             "is_active",
         )
         read_only_fields = ("id",)
+
+    def validate_organizer(self, value):
+        # normalize empty string to None
+        if value == "":
+            return None
+        return value
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if obj.image and hasattr(obj.image, "url"):
+            return (
+                request.build_absolute_uri(obj.image.url) if request else obj.image.url
+            )
+        return None
+
+    def get_thumbnail_url(self, obj):
+        request = self.context.get("request")
+        if obj.thumbnail and hasattr(obj.thumbnail, "url"):
+            return (
+                request.build_absolute_uri(obj.thumbnail.url)
+                if request
+                else obj.thumbnail.url
+            )
+        # fall back to image url
+        return self.get_image_url(obj)

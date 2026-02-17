@@ -198,13 +198,16 @@ class StudyCenter(models.Model):
                 # If thumbnail generation fails, ignore silently
                 pass
 
+
 class Events(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True, null=True)
+    type = models.CharField(
+        max_length=100, null=True, blank=True
+    )  # e.g., Conference, Workshop
+    organizer = models.CharField(max_length=200, null=True, blank=True)
     image = models.ImageField(upload_to="events/")
-    thumbnail = models.ImageField(
-        upload_to="events/thumbnails/", blank=True, null=True
-    )
+    thumbnail = models.ImageField(upload_to="events/thumbnails/", blank=True, null=True)
     event_date = models.DateTimeField()
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(default=timezone.now)

@@ -21,6 +21,26 @@ export default function KnowledgeSharingFr() {
     return `${backendOrigin}/${cleaned}`;
   };
 
+  function normalizeItem(i) {
+    if (!i) return i;
+    return Object.assign(
+      {
+        id: i.id,
+        title: i.title || "",
+        description: i.description || "",
+        event_date: i.event_date || null,
+        image: i.image || null,
+        image_url: i.image_url || null,
+        thumbnail: i.thumbnail || null,
+        thumbnail_url: i.thumbnail_url || null,
+        type: i.type || null,
+        organizer: i.organizer || null,
+        is_active: typeof i.is_active === "boolean" ? i.is_active : true,
+      },
+      i,
+    );
+  }
+
   const timeAgo = (iso) => {
     if (!iso) return "-";
     const then = new Date(iso).getTime();
@@ -65,7 +85,7 @@ export default function KnowledgeSharingFr() {
             break;
           } else break;
         }
-        if (mounted) setItems(accum.filter(Boolean));
+        if (mounted) setItems(accum.filter(Boolean).map(normalizeItem));
       } catch (e) {
         console.error("Failed to load events", e);
       } finally {
@@ -80,111 +100,63 @@ export default function KnowledgeSharingFr() {
   return (
     <div className="space-y-6 py-12">
       <div className="bg-white rounded shadow">
-        {/* featured card */}
+        {/* list of events: each item in one row with image left, details right */}
         {loading ? (
           <div className="text-sm text-slate-500">Loading…</div>
-        ) : (
-          (() => {
-            const sample = {
-              id: "sample-tally-2025",
-              title:
-                "Knowledge Sharing Session on Tally Prime & Third-Party Software Integration",
-              description:
-                "A Knowledge Sharing Session on Tally Prime focusing on Networking, Collaboration, and Business Growth. The session highlights how Tally Prime streamlines accounting, enhances teamwork through connected business operations, and supports effective decision-making for improved productivity and collaboration across departments.",
-              event_date: "2025-10-11T00:00:00Z",
-              postedAgo: "Posted: 4 months ago",
-              image: null,
-            };
+        ) : items && items.length > 0 ? (
+          <div className="mt-6 space-y-6">
+            {items.map((it) => (
+              <div key={it.id} className="space-y-3">
+                <div className="px-4">
+                  <h3 className="text-3xl font-bold text-slate-800">
+                    {it.type || "-"}
+                  </h3>
+                </div>
+                <article className="bg-white rounded border overflow-hidden flex flex-col md:flex-row items-stretch">
+                  <div className="md:w-1/3 w-full">
+                    <div className="h-48 md:h-auto bg-black/5 overflow-hidden flex items-center justify-center">
+                      {it.image || it.image_url ? (
+                        <img
+                          src={resolveImage(it.image || it.image_url)}
+                          alt={it.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="text-sm text-slate-400">No image</div>
+                      )}
+                    </div>
+                  </div>
 
-            const featured = items && items.length > 0 ? items[0] : sample;
-
-            return (
-              <div className="md:flex md:gap-6 items-stretch mb-32">
-                <div className="md:w-1/2 h-64 md:h-auto bg-gradient-to-tr from-slate-100 to-white rounded overflow-hidden flex items-center justify-center">
-                  {featured.image ? (
-                    <img
-                      src={resolveImage(featured.image)}
-                      alt={featured.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center p-6">
-                      <div className="text-center">
-                        <div className="text-xs text-slate-500 mb-2">Image</div>
-                        <div className="text-sm text-slate-400">
-                          No image provided
-                        </div>
+                  <div className="p-4 md:flex-1">
+                    <div className="flex items-center gap-3">
+                      <div className="text-xs text-slate-500">
+                        Posted: {it.event_date ? timeAgo(it.event_date) : "-"}
                       </div>
                     </div>
-                  )}
-                </div>
-
-                <div className="md:flex-1 mt-4 md:mt-0">
-                  <div className="text-sm text-slate-500">
-                    Posted: {timeAgo(featured.event_date)}
-                  </div>
-                  <h1 className="text-xl md:text-3xl font-bold text-slate-800 mt-2">
-                    {featured.title}
-                  </h1>
-                  <div className="text-sm text-slate-600 mt-2">
-                    {featured.description}
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-4">
-                    <div className="px-3 py-2 bg-blue-50 text-blue-700 rounded">
+                    <h3 className="text-lg font-semibold text-slate-800 mt-1">
+                      {it.title}
+                    </h3>
+                    {it.organizer && (
+                      <div className="text-sm text-slate-500 mt-1">
+                        Organizer: {it.organizer}
+                      </div>
+                    )}
+                    <p className="text-sm text-slate-700 mt-2">
+                      {it.description}
+                    </p>
+                    <div className="mt-3 text-xs text-blue-700">
                       Event Date:{" "}
-                      {featured.event_date
-                        ? new Date(featured.event_date).toLocaleDateString()
+                      {it.event_date
+                        ? new Date(it.event_date).toLocaleDateString()
                         : "-"}
                     </div>
                   </div>
-                </div>
+                </article>
               </div>
-            );
-          })()
-        )}
-
-        {/* grid of other events */}
-        {!loading && items && items.length > 1 && (
-          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {items.slice(1).map((it) => (
-              <article
-                key={it.id}
-                className="border rounded overflow-hidden bg-white"
-              >
-                <div className="h-36 bg-black/5 overflow-hidden">
-                  {it.image ? (
-                    <img
-                      src={resolveImage(it.image)}
-                      alt={it.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-sm text-slate-400">
-                      No image
-                    </div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <h3 className="font-medium text-sm text-green-800">
-                    {it.title}
-                  </h3>
-                  <div className="text-xs text-slate-500 mt-1">
-                    {it.event_date
-                      ? new Date(it.event_date).toLocaleString()
-                      : "-"}
-                  </div>
-                  <p className="text-sm text-slate-700 mt-2">
-                    {it.description
-                      ? it.description.length > 120
-                        ? it.description.slice(0, 120) + "…"
-                        : it.description
-                      : ""}
-                  </p>
-                </div>
-              </article>
             ))}
           </div>
+        ) : (
+          <div className="text-sm text-slate-500 p-6">No events available.</div>
         )}
       </div>
     </div>
