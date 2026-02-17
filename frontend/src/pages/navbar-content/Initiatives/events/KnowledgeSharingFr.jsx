@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "../../../../api/axios";
 
 export default function KnowledgeSharingFr() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const backendOrigin = (() => {
     try {
@@ -97,15 +99,36 @@ export default function KnowledgeSharingFr() {
     return () => (mounted = false);
   }, []);
 
+  const searchParams = new URLSearchParams(location.search);
+  const filterParam = (searchParams.get("filter") || "").toLowerCase();
+  const filteredItems = (function () {
+    if (!filterParam) return items;
+    if (filterParam === "events") {
+      return items.filter((it) => {
+        if (!it) return false;
+        const t = (it.type || "").toLowerCase();
+        return t.includes("event");
+      });
+    }
+    if (filterParam === "initiatives") {
+      return items.filter((it) => {
+        if (!it) return false;
+        const t = (it.type || "").toLowerCase();
+        return /initiative|activity/.test(t);
+      });
+    }
+    return items;
+  })();
+
   return (
     <div className="space-y-6 py-12">
       <div className="bg-white rounded shadow">
         {/* list of events: each item in one row with image left, details right */}
         {loading ? (
           <div className="text-sm text-slate-500">Loading…</div>
-        ) : items && items.length > 0 ? (
+        ) : filteredItems && filteredItems.length > 0 ? (
           <div className="mt-6 space-y-6">
-            {items.map((it) => (
+            {filteredItems.map((it) => (
               <div key={it.id} className="space-y-3">
                 <div className="px-4">
                   <h3 className="text-3xl font-bold text-slate-800">
