@@ -28,6 +28,7 @@ import OurPartner from "./pages/home/OurPartner";
 import Registration from "./pages/login-registration/Registration";
 import Login from "./pages/login-registration/Login";
 import AdminDashboard from "./admin-panel/dashboard/AdminDashboard";
+import Dashboard from "./admin-panel/dashboard/Dashboard";
 import BannerUpload from "./admin-panel/settings/BannerUpload";
 import WebsiteInfo from "./admin-panel/settings/WebsiteInfo";
 import GalleryMedia from "./admin-panel/main/media/GalleryMedia";
@@ -249,7 +250,8 @@ function App() {
           }
         />
         <Route path="/admin" element={<AdminDashboard />}>
-          <Route index element={<div>Welcome to admin dashboard</div>} />
+          <Route index element={<Dashboard />} />
+          
           <Route path="settings/banner" element={<BannerUpload />} />
           <Route path="settings/website-info" element={<WebsiteInfo />} />
           <Route path="settings/study-center" element={<TrainingWebinar />} />
