@@ -16,6 +16,7 @@ import MemberList from "./pages/navbar-content/membership/MemberList";
 import MemberCriteria from "./pages/navbar-content/membership/MemberCriteria";
 import MembershipFee from "./pages/navbar-content/membership/MembershipFee";
 import CodeOfConduct from "./pages/navbar-content/membership/CodeOfConduct";
+import MemberBenifit from "./pages/navbar-content/membership/MemberBenifit";
 import News from "./pages/navbar-content/media-center/News";
 import Gallery from "./pages/navbar-content/media-center/Gallery";
 import VideoGallery from "./pages/navbar-content/media-center/VideoGallery";
@@ -150,6 +151,14 @@ function App() {
             </Layout>
           }
         />
+        <Route
+          path="/membership/benefits"
+          element={
+            <Layout>
+              <MemberBenifit />
+            </Layout>
+          }
+        />
 
         <Route
           path="/media/news"
@@ -251,7 +260,7 @@ function App() {
         />
         <Route path="/admin" element={<AdminDashboard />}>
           <Route index element={<Dashboard />} />
-          
+
           <Route path="settings/banner" element={<BannerUpload />} />
           <Route path="settings/website-info" element={<WebsiteInfo />} />
           <Route path="settings/study-center" element={<TrainingWebinar />} />
