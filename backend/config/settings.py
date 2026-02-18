@@ -37,9 +37,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY") or "unsafe-dev-secret-key-change-me"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# TEMPORARY: enable DEBUG for local development. Remove or set via env in production.
+DEBUG = True
 
-ALLOWED_HOSTS = ["bitpfc.onrender.com"]
+
+# Allow localhost/127.0.0.1 during local development when DEBUG is True.
+if DEBUG:
+    ALLOWED_HOSTS = ["127.0.0.1", "localhost", "::1"]
+else:
+    ALLOWED_HOSTS = ["bitpfc.onrender.com"]
 
 
 # Application definition
@@ -97,6 +103,15 @@ DATABASES = {
         conn_max_age=600,
     )
 }
+
+# If DATABASE_URL isn't set, fall back to a local sqlite database for development.
+if not os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": str(BASE_DIR / "db.sqlite3"),
+        }
+    }
 
 
 # Password validation
@@ -178,4 +193,3 @@ REST_FRAMEWORK = {
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
