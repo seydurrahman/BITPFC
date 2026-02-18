@@ -170,6 +170,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5175",
     "http://127.0.0.1:5175",
     "https://bitpfc.onrender.com",
+    "https://bitpfc-fr.onrender.com",
 ]
 
 # Trust the frontend origin for CSRF (adjust in production)
