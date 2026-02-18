@@ -38,14 +38,17 @@ SECRET_KEY = os.environ.get("SECRET_KEY") or "unsafe-dev-secret-key-change-me"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # TEMPORARY: enable DEBUG for local development. Remove or set via env in production.
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "False") == "True"
+
 
 
 # Allow localhost/127.0.0.1 during local development when DEBUG is True.
-if DEBUG:
-    ALLOWED_HOSTS = ["127.0.0.1", "localhost", "::1"]
-else:
-    ALLOWED_HOSTS = ["bitpfc.onrender.com"]
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "localhost",
+    "bitpfc.onrender.com",
+]
+
 
 
 # Application definition
