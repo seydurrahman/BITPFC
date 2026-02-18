@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import axios from "../../api/axios";
 import withAdmin from "../settings/withAdmin";
-import Logo from "../../assets/Logo.png";
+import Logo from "../../../assets/Logo.png";
 
 function AdminDashboard() {
   const navigate = useNavigate();
