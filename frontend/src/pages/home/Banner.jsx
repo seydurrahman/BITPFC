@@ -79,6 +79,31 @@ const Banner = () => {
 
   const b = banners[index];
 
+  // Resolve image URL: prefer `image_url`, fall back to `image` (which may be a relative path).
+  // If the backend returns a relative path like `/media/...`, prefix it with the API origin
+  // (strip any trailing `/api` from VITE_API_URL).
+  const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(
+    /\/api\/?$/,
+    "",
+  );
+  const imageRaw = (b && (b.image_url || b.thumbnail_url || b.image)) || "";
+  const imageSrc = imageRaw
+    ? /^(https?:)?\/\//.test(imageRaw) ||
+      /^data:/.test(imageRaw) ||
+      /^blob:/.test(imageRaw)
+      ? imageRaw
+      : `${apiOrigin}${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`
+    : "";
+
+  // Debugging: log resolved image source so we can inspect in browser console
+  if (imageSrc) {
+    // eslint-disable-next-line no-console
+    console.debug("Banner imageSrc:", imageSrc);
+  } else {
+    // eslint-disable-next-line no-console
+    console.debug("Banner imageSrc missing for banner id", b && b.id);
+  }
+
   return (
     <div className="w-full h-[450px] overflow-hidden mb-8">
       <div className="flex h-full flex-col md:flex-row">
@@ -142,7 +167,7 @@ const Banner = () => {
           <div
             className="hidden md:block w-full h-full bg-center bg-no-repeat bg-cover z-0"
             style={{
-              backgroundImage: `url(${b.image_url || b.image})`,
+              backgroundImage: `url("${imageSrc}")`,
               backgroundPosition: "center",
             }}
             role="img"
@@ -150,7 +175,13 @@ const Banner = () => {
           />
 
           <img
-            src={b.image_url || b.image}
+            src={imageSrc}
+            onError={(e) => {
+              // Log load failures to help debug missing images
+              // eslint-disable-next-line no-console
+              console.error("Banner image failed to load:", imageSrc, e);
+              e.currentTarget.style.display = "none";
+            }}
             alt={b.title || "banner"}
             loading="lazy"
             className="md:hidden max-h-full w-full object-cover object-center rounded-xl"
