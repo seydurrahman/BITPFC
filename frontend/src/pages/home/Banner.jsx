@@ -1,70 +1,51 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import axios from "../../api/axios";
 
 const Banner = () => {
   const [banners, setBanners] = useState([]);
   const [index, setIndex] = useState(0);
-  const timerRef = useRef(null);
 
+  // Fetch banners
   useEffect(() => {
     let mounted = true;
-    (async () => {
+
+    const fetchBanners = async () => {
       try {
         const res = await axios.get("banners/");
         const data = res.data || {};
         const list = Array.isArray(data) ? data : data.results || [];
         if (mounted) setBanners(list);
-      } catch (e) {
-        console.error("Failed fetching banners", e);
+      } catch (error) {
+        console.error("Failed fetching banners:", error);
         if (mounted) setBanners([]);
       }
-    })();
-    return () => (mounted = false);
+    };
+
+    fetchBanners();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
+  // Auto slide every 5 seconds
   useEffect(() => {
-    // reset index when banners change
-    setIndex(0);
+    if (banners.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % banners.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [banners.length]);
 
+  // Reset index safely if banners change
   useEffect(() => {
-    // auto-advance every 5s if multiple banners
-    if ((banners?.length || 0) <= 1) return undefined;
-    startAutoAdvance();
-    return () => stopAutoAdvance();
-  }, [banners]);
-
-  const startAutoAdvance = (interval = 5000) => {
-    stopAutoAdvance();
-    if ((banners?.length || 0) <= 1) return;
-    timerRef.current = setInterval(() => {
-      setIndex((i) => (i + 1) % banners.length);
-    }, interval);
-  };
-
-  const stopAutoAdvance = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    if (index >= banners.length) {
+      setIndex(0);
     }
-  };
+  }, [banners.length, index]);
 
-  const goTo = (i) => {
-    setIndex(i);
-    startAutoAdvance();
-  };
-
-  const prev = () => {
-    setIndex((i) => (i - 1 + banners.length) % banners.length);
-    startAutoAdvance();
-  };
-
-  const next = () => {
-    setIndex((i) => (i + 1) % banners.length);
-    startAutoAdvance();
-  };
-
-  if (!banners || banners.length === 0) {
+  if (!banners.length) {
     return (
       <div className="w-full h-[450px] bg-gray-100 flex items-center justify-center">
         <div className="text-center text-gray-700">
@@ -79,115 +60,88 @@ const Banner = () => {
 
   const b = banners[index];
 
-  // Resolve image URL: prefer `image_url`, fall back to `image` (which may be a relative path).
-  // If the backend returns a relative path like `/media/...`, prefix it with the API origin
-  // (strip any trailing `/api` from VITE_API_URL).
-  const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(
-    /\/api\/?$/,
-    "",
-  );
-  const imageRaw = (b && (b.image_url || b.thumbnail_url || b.image)) || "";
-  const imageSrc = imageRaw
-    ? /^(https?:)?\/\//.test(imageRaw) ||
-      /^data:/.test(imageRaw) ||
-      /^blob:/.test(imageRaw)
-      ? imageRaw
-      : `${apiOrigin}${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`
-    : "";
+  // Resolve image URL
+  const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(/\/api\/?$/, "");
+  const imageRaw = b?.image_url || b?.thumbnail_url || b?.image || "";
 
-  // Debugging: log resolved image source so we can inspect in browser console
-  if (imageSrc) {
-    // eslint-disable-next-line no-console
-    console.debug("Banner imageSrc:", imageSrc);
-  } else {
-    // eslint-disable-next-line no-console
-    console.debug("Banner imageSrc missing for banner id", b && b.id);
-  }
+  const imageSrc =
+    imageRaw &&
+    (/^(https?:)?\/\//.test(imageRaw) ||
+    /^data:/.test(imageRaw) ||
+    /^blob:/.test(imageRaw)
+      ? imageRaw
+      : `${apiOrigin}${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`);
+
+  const prev = () =>
+    setIndex((i) => (i - 1 + banners.length) % banners.length);
+
+  const next = () =>
+    setIndex((i) => (i + 1) % banners.length);
+
+  const goTo = (i) => setIndex(i);
 
   return (
     <div className="w-full h-[450px] overflow-hidden mb-8">
       <div className="flex h-full flex-col md:flex-row">
+        {/* LEFT CONTENT */}
         <div className="md:w-1/2 w-full p-8 flex flex-col justify-center bg-gradient-to-r from-blue-700 via-purple-600 to-purple-800 text-white relative pb-12">
-          {b.title && <h2 className="text-3xl font-bold mb-2">{b.title}</h2>}
-          {b.description && <p className="text-md max-w-md">{b.description}</p>}
+          {b.title && (
+            <h2 className="text-3xl font-bold mb-2 transition-all duration-500">
+              {b.title}
+            </h2>
+          )}
+          {b.description && (
+            <p className="text-md max-w-md transition-all duration-500">
+              {b.description}
+            </p>
+          )}
 
-          {/* Arrows inside title/description div */}
+          {/* Arrows */}
           <button
             onClick={prev}
             aria-label="Previous banner"
-            className="absolute left-4 bottom-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 z-20"
+            className="absolute left-4 bottom-4 bg-white/10 hover:bg-white/20 rounded-full p-2"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M12.293 16.293a1 1 0 010 1.414l-6-6a1 1 0 010-1.414l6-6a1 1 0 111.414 1.414L8.414 10l5.293 5.293a1 1 0 010 1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
+            ❮
           </button>
 
           <button
             onClick={next}
             aria-label="Next banner"
-            className="absolute right-4 bottom-4 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 z-20"
+            className="absolute right-4 bottom-4 bg-white/10 hover:bg-white/20 rounded-full p-2"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M7.707 3.707a1 1 0 010-1.414l6 6a1 1 0 010 1.414l-6 6a1 1 0 11-1.414-1.414L11.586 10 6.293 4.707a1 1 0 011.414-1.414z"
-                clipRule="evenodd"
-              />
-            </svg>
+            ❯
           </button>
-          {/* Dots centered between arrows */}
-          <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex items-center gap-2 z-20">
+
+          {/* Dots */}
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-4 flex gap-2">
             {banners.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                aria-label={`Go to banner ${i + 1}`}
-                className={`w-3 h-3 rounded-full transition-colors ${i === index ? "bg-white" : "bg-white/40"}`}
+                className={`w-3 h-3 rounded-full transition-all ${
+                  i === index ? "bg-white scale-110" : "bg-white/40"
+                }`}
               />
             ))}
           </div>
         </div>
 
-        <div className="md:w-1/2 w-full relative h-64 md:h-full bg-gray-100 flex items-center justify-center overflow-hidden">
-          {/* Use background on md+ with contain focal point, fallback to img on small screens */}
+        {/* RIGHT IMAGE */}
+        <div className="md:w-1/2 w-full relative h-64 md:h-full bg-gray-100 overflow-hidden">
           <div
-            className="hidden md:block w-full h-full bg-center bg-no-repeat bg-cover z-0"
-            style={{
-              backgroundImage: `url("${imageSrc}")`,
-              backgroundPosition: "center",
-            }}
+            className="hidden md:block w-full h-full bg-center bg-no-repeat bg-cover transition-all duration-700 ease-in-out"
+            style={{ backgroundImage: `url("${imageSrc}")` }}
             role="img"
             aria-label={b.title || "banner"}
           />
 
           <img
             src={imageSrc}
-            onError={(e) => {
-              // Log load failures to help debug missing images
-              // eslint-disable-next-line no-console
-              console.error("Banner image failed to load:", imageSrc, e);
-              e.currentTarget.style.display = "none";
-            }}
             alt={b.title || "banner"}
             loading="lazy"
-            className="md:hidden max-h-full w-full object-cover object-center rounded-xl"
+            className="md:hidden w-full h-full object-cover object-center transition-all duration-700 ease-in-out"
           />
-
-          {/* (moved arrows into the left/title div) */}
         </div>
       </div>
     </div>
