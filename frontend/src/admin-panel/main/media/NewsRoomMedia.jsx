@@ -26,11 +26,25 @@ export default function NewsRoomMedia() {
 
   const resolveImage = (path) => {
     if (!path) return null;
-    if (typeof path === "string" && /^https?:\/\//.test(path)) return path;
-    const cleaned = (path || "").replace(/^\//, "");
-    if (/^media\//.test(cleaned)) return `${backendOrigin}/${cleaned}`;
-    if (/^photos\//.test(cleaned)) return `${backendOrigin}/media/${cleaned}`;
-    return `${backendOrigin}/${cleaned}`;
+    try {
+      if (typeof path === "string") {
+        const s = path.trim();
+        if (/^(https?:)?\/\//.test(s) || /^data:/.test(s) || /^blob:/.test(s))
+          return s;
+        const cleaned = s.replace(/^\//, "");
+        if (/^media\//.test(cleaned)) return `${backendOrigin}/${cleaned}`;
+        if (/^photos\//.test(cleaned))
+          return `${backendOrigin}/media/${cleaned}`;
+        return `${backendOrigin}/${cleaned}`;
+      }
+      if (typeof path === "object" && path !== null) {
+        const url = path.url || path?.path || String(path);
+        return resolveImage(url);
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -43,6 +57,17 @@ export default function NewsRoomMedia() {
           setNewsItems(data.results);
         else if (data) setNewsItems([data]);
         else setNewsItems([]);
+        try {
+          // eslint-disable-next-line no-console
+          console.debug(
+            "Admin fetched news:",
+            (Array.isArray(data) ? data : data.results || [data]).map((it) => ({
+              id: it.id,
+              image: it.image,
+              resolved: resolveImage(it.image),
+            })),
+          );
+        } catch (e) {}
       } catch (error) {
         console.error("Failed to fetch news items.", error);
         setNewsItems([]);
@@ -235,8 +260,35 @@ export default function NewsRoomMedia() {
                   {newsItem.image ? (
                     <img
                       src={resolveImage(newsItem.image)}
+                      data-attempted="0"
                       alt={newsItem.title}
                       className="w-20 h-12 object-cover rounded"
+                      onError={(e) => {
+                        try {
+                          const img = e.currentTarget;
+                          const attempted = img.dataset.attempted || "0";
+                          if (attempted === "0") {
+                            const src = img.src || "";
+                            const backend = backendOrigin;
+                            let alt = null;
+                            if (src.includes("/media/")) {
+                              alt = src.replace(/\/media\//, "/");
+                            } else {
+                              const cleaned = (newsItem.image || "").replace(
+                                /^\//,
+                                "",
+                              );
+                              alt = `${backend}/media/${cleaned}`;
+                            }
+                            if (alt && alt !== src) {
+                              img.dataset.attempted = "1";
+                              img.src = alt;
+                              return;
+                            }
+                          }
+                        } catch (err) {}
+                        e.currentTarget.style.display = "none";
+                      }}
                     />
                   ) : (
                     <div className="w-20 h-12 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">

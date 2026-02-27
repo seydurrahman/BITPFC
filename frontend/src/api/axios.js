@@ -1,8 +1,13 @@
 import axios from "axios";
 
+const DEFAULT_API = "http://127.0.0.1:8000/api";
 const instance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // dynamic based on env
+  baseURL: import.meta.env.VITE_API_URL || DEFAULT_API, // dynamic based on env, fallback for local dev
 });
+
+// Debug: expose base URL in console to help troubleshoot media/image resolving
+// eslint-disable-next-line no-console
+console.debug("API baseURL:", instance.defaults.baseURL);
 
 // JWT token handling (same as before)
 instance.interceptors.request.use((config) => {

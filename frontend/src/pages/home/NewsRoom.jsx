@@ -26,12 +26,26 @@ export default function NewsRoom() {
   const resolveImage = useCallback(
     (path) => {
       if (!path) return null;
-      if (typeof path === "string" && /^https?:\/\//.test(path)) return path;
-
-      const cleaned = String(path).replace(/^\//, "");
-      return `${backendOrigin}/${cleaned}`;
+      try {
+        // handle absolute URLs (http, https), protocol-relative (//), data/blob URLs
+        if (typeof path === "string") {
+          const s = path.trim();
+          if (/^(https?:)?\/\//.test(s) || /^data:/.test(s) || /^blob:/.test(s))
+            return s;
+          const cleaned = s.replace(/^\//, "");
+          return `${backendOrigin}/${cleaned}`;
+        }
+        // if path is an object with a `url` property
+        if (typeof path === "object" && path !== null) {
+          const url = path.url || path?.path || String(path);
+          return resolveImage(url);
+        }
+      } catch (e) {
+        return null;
+      }
+      return null;
     },
-    [backendOrigin]
+    [backendOrigin],
   );
 
   // -------------------------
@@ -55,6 +69,18 @@ export default function NewsRoom() {
         items = items.filter((i) => i.is_active !== false);
 
         setNewsItems(items);
+        // debug: log resolved image URLs
+        try {
+          // eslint-disable-next-line no-console
+          console.debug(
+            "Fetched news items:",
+            items.map((it) => ({
+              id: it.id,
+              image: it.image,
+              resolved: resolveImage(it.image),
+            })),
+          );
+        } catch (e) {}
       } catch (e) {
         console.error("Failed to load news:", e);
       } finally {
@@ -114,9 +140,7 @@ export default function NewsRoom() {
         </h2>
 
         {loading ? (
-          <div className="text-center py-20 text-gray-500">
-            Loading news...
-          </div>
+          <div className="text-center py-20 text-gray-500">Loading news...</div>
         ) : (
           <div className="relative">
             {/* News Slider */}
@@ -139,9 +163,37 @@ export default function NewsRoom() {
                         src={resolveImage(n.image)}
                         alt={n.title}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-                        onError={(e) =>
-                          (e.currentTarget.style.display = "none")
-                        }
+                        onError={(e) => {
+                          try {
+                            const img = e.currentTarget;
+                            const attempted = img.dataset.attempted || "0";
+                            if (attempted === "0") {
+                              // try alternate forms: add or remove /media/ prefix
+                              const src = img.src || "";
+                              const backend = backendOrigin;
+                              let alt = null;
+                              if (src.includes("/media/")) {
+                                // remove the first /media/ segment
+                                alt = src.replace(/\/media\//, "/");
+                              } else {
+                                // ensure /media/ is present
+                                const cleaned = (n.image || "").replace(
+                                  /^\//,
+                                  "",
+                                );
+                                alt = `${backend}/media/${cleaned}`;
+                              }
+                              if (alt && alt !== src) {
+                                img.dataset.attempted = "1";
+                                img.src = alt;
+                                return;
+                              }
+                            }
+                          } catch (err) {
+                            // ignore
+                          }
+                          e.currentTarget.style.display = "none";
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full bg-gray-200" />
@@ -155,9 +207,7 @@ export default function NewsRoom() {
                         <Calendar size={16} />
                         <span>
                           {n.created_at
-                            ? new Date(
-                                n.created_at
-                              ).toLocaleDateString()
+                            ? new Date(n.created_at).toLocaleDateString()
                             : "-"}
                         </span>
                       </div>
@@ -218,14 +268,10 @@ export default function NewsRoom() {
             {/* Header */}
             <div className="p-5 border-b flex justify-between items-start">
               <div>
-                <h3 className="text-xl font-bold">
-                  {selectedNews.title}
-                </h3>
+                <h3 className="text-xl font-bold">{selectedNews.title}</h3>
                 <div className="text-sm text-slate-500">
                   {selectedNews.created_at
-                    ? new Date(
-                        selectedNews.created_at
-                      ).toLocaleString()
+                    ? new Date(selectedNews.created_at).toLocaleString()
                     : "-"}
                   {" • "}Admin
                 </div>

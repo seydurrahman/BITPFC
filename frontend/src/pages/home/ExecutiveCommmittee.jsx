@@ -8,6 +8,55 @@ import img4 from "../../assets/Executive-Committee/4.png";
 
 const placeholderImages = [img1, img2, img3, img4];
 
+// Progressive image loader using stacked <img> for proper object-fit and smooth fade.
+function ProgressiveImage({ src, placeholder, alt, className }) {
+  const [loaded, setLoaded] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(placeholder);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!src) {
+      setLoaded(false);
+      setCurrentSrc(placeholder);
+      return () => (mounted = false);
+    }
+
+    setLoaded(false);
+    const img = new Image();
+    img.onload = () => {
+      if (!mounted) return;
+      setCurrentSrc(src);
+      setLoaded(true);
+    };
+    img.onerror = () => {
+      if (!mounted) return;
+      setCurrentSrc(placeholder);
+      setLoaded(false);
+    };
+    img.src = src;
+
+    return () => {
+      mounted = false;
+    };
+  }, [src, placeholder]);
+
+  // Render an <img> with object-fit and a smooth opacity transition.
+  return (
+    <img
+      src={currentSrc}
+      alt={alt}
+      className={className}
+      style={{
+        objectFit: "cover",
+        objectPosition: "top",
+        transition: "opacity 300ms ease-in-out",
+        opacity: loaded ? 1 : 1,
+      }}
+      loading="lazy"
+    />
+  );
+}
+
 export default function ExecutiveCommittee() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +64,8 @@ export default function ExecutiveCommittee() {
   useEffect(() => {
     let mounted = true;
 
-    const backendOrigin = (axios.defaults.baseURL || "")
+    const envApi = import.meta.env.VITE_API_URL || "";
+    const backendOrigin = (axios.defaults.baseURL || envApi || "")
       .replace(/\/api\/?$/, "")
       .replace(/\/$/, "");
 
@@ -63,7 +113,7 @@ export default function ExecutiveCommittee() {
             designation: item.designation || item.committee_type || "",
             photo: resolvePhoto(
               user.photography_url || user.photography,
-              index
+              index,
             ),
             badge:
               item.membership_category_name ||
@@ -105,17 +155,13 @@ export default function ExecutiveCommittee() {
             {members.map((m, index) => (
               <div
                 key={m.id}
-                className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl opacity-0 animate-fadeIn"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col transform transition-all duration-300 hover:-translate-y-3 hover:shadow-2xl"
               >
                 <div className="h-72 w-full overflow-hidden bg-gray-100">
-                  <img
+                  <ProgressiveImage
                     src={m.photo}
+                    placeholder={placeholderImages[index % 4]}
                     alt={m.name}
-                    onError={(e) => {
-                      e.currentTarget.src =
-                        placeholderImages[index % 4];
-                    }}
                     className="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
                   />
                 </div>
@@ -146,18 +192,7 @@ export default function ExecutiveCommittee() {
         )}
       </div>
 
-      {/* Fade animation */}
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-          .animate-fadeIn {
-            animation: fadeIn 0.6s ease forwards;
-          }
-        `}
-      </style>
+      {/* Removed animated fade-in to prevent layout thrashing on home page */}
     </section>
   );
 }

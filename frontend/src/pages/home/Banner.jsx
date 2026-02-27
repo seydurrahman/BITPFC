@@ -45,6 +45,42 @@ const Banner = () => {
     }
   }, [banners.length, index]);
 
+  const b = banners[index];
+
+  // Resolve image URL
+  const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(
+    /\/api\/?$/,
+    "",
+  );
+  const imageRawInitial = b?.image_url || b?.thumbnail_url || b?.image || "";
+
+  // Normalize possible object shapes and whitespace
+  let imageRaw = imageRawInitial;
+  try {
+    if (imageRaw && typeof imageRaw === "object") {
+      imageRaw = imageRaw.url || String(imageRaw) || "";
+    }
+    if (typeof imageRaw === "string") imageRaw = imageRaw.trim();
+  } catch (e) {
+    imageRaw = "";
+  }
+
+  const imageSrc =
+    imageRaw &&
+    (/^(https?:)?\/\//.test(imageRaw) ||
+    /^data:/.test(imageRaw) ||
+    /^blob:/.test(imageRaw)
+      ? imageRaw
+      : `${apiOrigin}${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`);
+
+  // Debug help: log resolved values when an image is expected but missing
+  useEffect(() => {
+    if (banners) {
+      // eslint-disable-next-line no-console
+      console.debug("Banner data:", b, { imageRawInitial, imageRaw, imageSrc });
+    }
+  }, [banners, b, imageRawInitial, imageRaw, imageSrc]);
+
   if (!banners.length) {
     return (
       <div className="w-full h-[450px] bg-gray-100 flex items-center justify-center">
@@ -58,25 +94,9 @@ const Banner = () => {
     );
   }
 
-  const b = banners[index];
+  const prev = () => setIndex((i) => (i - 1 + banners.length) % banners.length);
 
-  // Resolve image URL
-  const apiOrigin = (import.meta.env.VITE_API_URL || "").replace(/\/api\/?$/, "");
-  const imageRaw = b?.image_url || b?.thumbnail_url || b?.image || "";
-
-  const imageSrc =
-    imageRaw &&
-    (/^(https?:)?\/\//.test(imageRaw) ||
-    /^data:/.test(imageRaw) ||
-    /^blob:/.test(imageRaw)
-      ? imageRaw
-      : `${apiOrigin}${imageRaw.startsWith("/") ? "" : "/"}${imageRaw}`);
-
-  const prev = () =>
-    setIndex((i) => (i - 1 + banners.length) % banners.length);
-
-  const next = () =>
-    setIndex((i) => (i + 1) % banners.length);
+  const next = () => setIndex((i) => (i + 1) % banners.length);
 
   const goTo = (i) => setIndex(i);
 
@@ -129,17 +149,31 @@ const Banner = () => {
 
         {/* RIGHT IMAGE */}
         <div className="md:w-1/2 w-full relative h-64 md:h-full bg-gray-100 overflow-hidden">
-          <div
-            className="hidden md:block w-full h-full bg-center bg-no-repeat bg-cover transition-all duration-700 ease-in-out"
-            style={{ backgroundImage: `url("${imageSrc}")` }}
-            role="img"
-            aria-label={b.title || "banner"}
-          />
+          {imageSrc ? (
+            <div
+              className="hidden md:block w-full h-full bg-center bg-no-repeat bg-cover transition-all duration-700 ease-in-out"
+              style={{ backgroundImage: `url("${imageSrc}")` }}
+              role="img"
+              aria-label={b.title || "banner"}
+            />
+          ) : (
+            <div className="hidden md:block w-full h-full bg-gray-200 flex items-center justify-center">
+              <span className="text-sm text-gray-500">No image</span>
+            </div>
+          )}
 
           <img
-            src={imageSrc}
+            src={imageSrc || undefined}
             alt={b.title || "banner"}
             loading="lazy"
+            onError={(e) => {
+              // eslint-disable-next-line no-console
+              console.warn(
+                "Banner image failed to load:",
+                e?.currentTarget?.src,
+              );
+              e.currentTarget.style.display = "none";
+            }}
             className="md:hidden w-full h-full object-cover object-center transition-all duration-700 ease-in-out"
           />
         </div>
