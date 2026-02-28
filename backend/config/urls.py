@@ -39,17 +39,19 @@ urlpatterns = [
     path("api/", include("core.urls")),
 ]
 
-if settings.DEBUG:
-    # Standard debug-only media serving
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-elif os.environ.get("SERVE_MEDIA") == "True":
-    # Explicitly add a media-serving route when SERVE_MEDIA is set.
-    # This uses django.views.static.serve and is intended for local
-    # development convenience only — do NOT enable in production.
-    urlpatterns += [
-        re_path(
-            r"^%s(?P<path>.*)$" % settings.MEDIA_URL.lstrip("/"),
-            _serve,
-            {"document_root": settings.MEDIA_ROOT},
-        ),
-    ]
+# if settings.DEBUG:
+#     # Standard debug-only media serving
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# elif os.environ.get("SERVE_MEDIA") == "True":
+#     # Explicitly add a media-serving route when SERVE_MEDIA is set.
+#     # This uses django.views.static.serve and is intended for local
+#     # development convenience only — do NOT enable in production.
+#     urlpatterns += [
+#         re_path(
+#             r"^%s(?P<path>.*)$" % settings.MEDIA_URL.lstrip("/"),
+#             _serve,
+#             {"document_root": settings.MEDIA_ROOT},
+#         ),
+#     ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
