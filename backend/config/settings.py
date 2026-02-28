@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
+import cloudinary
+import cloudinary_storage
 
 # Optionally load environment variables from a .env file for local development.
 # This import is optional so the project runs even if python-dotenv isn't installed.
@@ -25,6 +27,9 @@ except Exception:
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Cloudinary setup
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 # Quick-start development settings - unsuitable for production
