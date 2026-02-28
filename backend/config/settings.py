@@ -60,6 +60,15 @@ SECRET_KEY = os.environ.get("SECRET_KEY") or "unsafe-dev-secret-key-change-me"
 # DEBUG = os.environ.get("DEBUG", "False") == "True"
 DEBUG = os.environ.get("DEBUG") == "True"
 
+# Reduce Render cold start latency
+SECURE_SSL_REDIRECT = False
+
+# Production headers optimization
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# Connection performance
+CONN_MAX_AGE = 600
+
 
 # Allow localhost/127.0.0.1 during local development when DEBUG is True.
 ALLOWED_HOSTS = [
@@ -91,9 +100,11 @@ MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
