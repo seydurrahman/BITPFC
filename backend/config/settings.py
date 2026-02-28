@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
-import cloudinary
-import cloudinary_storage
 
 # Optionally load environment variables from a .env file for local development.
 # This import is optional so the project runs even if python-dotenv isn't installed.
@@ -29,7 +27,22 @@ except Exception:
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Cloudinary setup
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+import cloudinary
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.environ.get("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.environ.get("CLOUDINARY_API_SECRET"),
+}
+
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+    secure=True,
+)
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 
 # Quick-start development settings - unsuitable for production
@@ -162,7 +175,8 @@ AUTH_USER_MODEL = "users.User"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
+# MEDIA_ROOT = BASE_DIR / "media"
 
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
