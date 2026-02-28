@@ -16,18 +16,12 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from users import views as user_views
-from rest_framework_simplejwt.views import (
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import TokenRefreshView
 from users.views import EmailTokenObtainPairView
-from django.urls import include
 from django.conf import settings
 from django.conf.urls.static import static
-import os
-from django.views.static import serve as _serve
-from django.urls import re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -38,6 +32,9 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/", include("core.urls")),
 ]
+
+# 🔥 THIS MUST BE OUTSIDE ANY CONDITION
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # if settings.DEBUG:
 #     # Standard debug-only media serving
@@ -54,4 +51,3 @@ urlpatterns = [
 #         ),
 #     ]
 
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
