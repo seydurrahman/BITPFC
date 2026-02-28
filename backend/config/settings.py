@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 import dj_database_url
 from pathlib import Path
+import cloudinary
+
 
 # Optionally load environment variables from a .env file for local development.
 # This import is optional so the project runs even if python-dotenv isn't installed.
@@ -27,7 +29,6 @@ except Exception:
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Cloudinary setup
-import cloudinary
 
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": os.environ.get("CLOUDINARY_CLOUD_NAME"),
@@ -57,7 +58,7 @@ SECRET_KEY = os.environ.get("SECRET_KEY") or "unsafe-dev-secret-key-change-me"
 # SECURITY WARNING: don't run with debug turned on in production!
 # TEMPORARY: enable DEBUG for local development. Remove or set via env in production.
 # DEBUG = os.environ.get("DEBUG", "False") == "True"
-DEBUG = os.environ.get("DEBUG", "True") == "True"
+DEBUG = os.environ.get("DEBUG") == "True"
 
 
 # Allow localhost/127.0.0.1 during local development when DEBUG is True.
@@ -82,6 +83,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "users",
     "core",
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -176,7 +179,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = "/media/"
 
-# MEDIA_ROOT = BASE_DIR / "media"
 
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
